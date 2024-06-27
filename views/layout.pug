@@ -1,0 +1,45 @@
+- const env = process.env.NODE_ENV || 'dev';
+
+doctype html
+
+html
+    head
+        title BAT Loyalty Program
+        meta(name="viewport", content="width=device-width, initial-scale=1")
+
+        link(rel="preconnect" href="https://fonts.googleapis.com")
+        link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
+        link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap")
+        
+        link(rel='stylesheet', href='/css/layout.css')
+        block styles
+        
+    body
+        input#userType(value=user_type type='hidden')
+
+        .header
+            table.title-bar
+                tr
+                    td
+                        h1.title-bar__title Welcome back #{user_id}
+                    td(rowspan="2")
+                        span #{user_id}
+                tr
+                    td
+                        span 27 Jun 2024
+
+        nav.nav-bar
+            ul
+                li
+                    a(href="/dashboard")
+                        span.nav-text Dashboard
+                li
+                    a(href="/user_maintenance")
+                        span.nav-text User Maintenance
+                br
+                li
+                    a(href="/logout")
+                        span.nav-text Logout
+
+        .content
+            block content
