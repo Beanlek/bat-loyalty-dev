@@ -57,6 +57,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: false
       },
+      security_image:{
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      security_phrase:{
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
 
       created_by: {
         type: Sequelize.TEXT,

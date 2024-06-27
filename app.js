@@ -11,19 +11,39 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
 const indexRouter = require('./routes/index');
+const loginRouter = require('./routes/login');
+const userRouter = require('./routes/a_user');
+
 const apiAuthRouter = require('./routes/api_auth');
 const apiUserRouter = require('./routes/api_user');
 
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({limit: '50mb', extended: true }));
+app.use(cookieParser());
 
-// app.use('/', indexRouter);
+// pug engine (required)
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+// logging
+logger.token('body', (req, res) => JSON.stringify(req.body));
+logger.format('customFormat', ':method :url :status :response-time ms - :res[content-length] :body');
+app.use(logger('customFormat'));
+
+// web pages
+app.use('/', indexRouter);
+app.use('/login', loginRouter);
+app.use('/a/user', userRouter);
+
+// app api
 app.use('/api/auth', apiAuthRouter);
 app.use('/api/user', apiUserRouter);
 
 
-// --- catch 404 and forward to error handler
+// 404 error handler
 app.use(function(req, res, next) {
     next(createError(404));  
 });

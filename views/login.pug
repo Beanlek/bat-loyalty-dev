@@ -1,0 +1,32 @@
+- const env = process.env.NODE_ENV || 'dev';
+
+doctype html
+html
+    head
+        title BAT Loyalty Program | Login
+        meta(name="viewport", content="width=device-width, initial-scale=1")
+        
+        link(rel='stylesheet', href='/css/login.css')
+        script(src='/js/login.js')
+
+    body
+        .header
+        .content
+            form.form(method='POST', action='/login')
+                .title
+                    .trademark
+                        span.companyName BAT 
+                        span.appName Loyalty Program 
+                        span.envName (#{env.toUpperCase()})
+                    
+                .response #{error}
+                
+                .fields
+                    .field.username
+                        input.input-field#username(name='username', type='text', required, autocomplete='off' placeholder='USERNAME')
+                    
+                    .field.password
+                        input.input-field#password(name='password', type='password', required, autocomplete='off' placeholder='PASSWORD')
+                
+                button#btnLogin(type='submit') SIGN IN
+
