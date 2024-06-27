@@ -2,31 +2,44 @@
 
 doctype html
 html
-    head
-        title BAT Loyalty Program | Login
-        meta(name="viewport", content="width=device-width, initial-scale=1")
-        
-        link(rel='stylesheet', href='/css/login.css')
-        script(src='/js/login.js')
-
-    body
-        .header
-        .content
-            form.form(method='POST', action='/login')
-                .title
-                    .trademark
-                        span.companyName BAT 
-                        span.appName Loyalty Program 
-                        span.envName (#{env.toUpperCase()})
-                    
-                .response #{error}
-                
-                .fields
-                    .field.username
-                        input.input-field#username(name='username', type='text', required, autocomplete='off' placeholder='USERNAME')
-                    
-                    .field.password
-                        input.input-field#password(name='password', type='password', required, autocomplete='off' placeholder='PASSWORD')
-                
-                button#btnLogin(type='submit') SIGN IN
-
+  head
+    title BAT Loyalty Program | Login
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
+    link(rel="icon" type="image/x-icon" href="/img/brand/logo_only.svg")
+    link(href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet")
+    link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css")
+    link(rel="stylesheet" href="/login/css/style.css")
+    script(src="/login/js/jquery.min.js")
+    script(src="/login/js/popper.js")
+    script(src="/login/js/bootstrap.min.js")
+    script(src="/login/js/main.js")
+    script(src="/jquery/dist/jquery.min.js")
+    script(src='/js/login.js')
+  body
+    section.ftco-section
+      .container
+        .row.justify-content-center
+          .col-md-12.col-lg-10
+            .wrap.d-md-flex
+              .text-wrap.p-4.p-lg-5.text-center.d-flex.align-items-center.order-md-last
+                .text.w-100
+                  h2 BAT Loyalty Program
+                  if (!['prod-nv','prod-lj','prod-vn', 'prod-bmc'].includes(env))
+                    h5 (#{env.toUpperCase()})
+                  //- #news
+              .login-wrap.p-4.p-lg-5
+                .d-flex.text-center.d-flex.align-items-center
+                  .w-100
+                    img.logo(src="https://www.batmalaysia.com/imgs/logo_BAT_AP6D2L.png", alt="Bat Logo")
+                    h3.mb-4 Sign In
+                    p.mb-4 #{error}
+                form.signin-form(method='POST', action='/login')
+                  .form-group.mb-3
+                    label.label(for="name") Username
+                    input.form-control(name='username', type='text', required, autocomplete='off' placeholder='Username')
+                  .form-group.mb-3
+                    label.label(for="password") Password
+                    input.form-control(name='password', type='password', required, autocomplete='off' placeholder='Password')
+                  .form-group
+                    button.form-control.btn.btn-primary.submit.px-3(type="submit") Sign In
