@@ -1,45 +1,42 @@
-- const env = process.env.NODE_ENV || 'dev';
-
 doctype html
-html
-  head
-    title BAT Loyalty Program | Login
-    meta(charset="utf-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no")
-    link(rel="icon" type="image/x-icon" href="/img/brand/logo_only.svg")
-    link(href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet")
-    link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css")
-    link(rel="stylesheet" href="/login/css/style.css")
-    script(src="/login/js/jquery.min.js")
-    script(src="/login/js/popper.js")
-    script(src="/login/js/bootstrap.min.js")
-    script(src="/login/js/main.js")
-    script(src="/jquery/dist/jquery.min.js")
-    script(src='/js/login.js')
-  body
-    section.ftco-section
-      .container
-        .row.justify-content-center
-          .col-md-12.col-lg-10
-            .wrap.d-md-flex
-              .text-wrap.p-4.p-lg-5.text-center.d-flex.align-items-center.order-md-last
-                .text.w-100
-                  h2 BAT Loyalty Program
-                  if (!['prod-nv','prod-lj','prod-vn', 'prod-bmc'].includes(env))
-                    h5 (#{env.toUpperCase()})
-                  //- #news
-              .login-wrap.p-4.p-lg-5
-                .d-flex.text-center.d-flex.align-items-center
-                  .w-100
-                    img.logo(src="https://www.batmalaysia.com/imgs/logo_BAT_AP6D2L.png", alt="Bat Logo")
-                    h3.mb-4 Sign In
-                    p.mb-4 #{error}
-                form.signin-form(method='POST', action='/login')
-                  .form-group.mb-3
-                    label.label(for="name") Username
-                    input.form-control(name='username', type='text', required, autocomplete='off' placeholder='Username')
-                  .form-group.mb-3
-                    label.label(for="password") Password
-                    input.form-control(name='password', type='password', required, autocomplete='off' placeholder='Password')
-                  .form-group
-                    button.form-control.btn.btn-primary.submit.px-3(type="submit") Sign In
+head
+  // Required meta tags
+  meta(charset='utf-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+  link(href='https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap' rel='stylesheet')
+  link(rel='stylesheet' href='/login/fonts/icomoon/style.css')
+  link(rel='stylesheet' href='/login/css/owl.carousel.min.css')
+  // Bootstrap CSS
+  link(rel='stylesheet' href='/login/css/bootstrap.min.css')
+  // Style
+  link(rel='stylesheet' href='/login/css/style.css')
+  script(src='/login/js/jquery-3.3.1.min.js')
+  script(src='/login/js/popper.min.js')
+  script(src='/login/js/bootstrap.min.js')
+  script(src='/login/js/main.js')
+  title BAT Loyalty Program | Login
+.d-lg-flex.half
+  .bg.order-2.order-md-1(style="background: linear-gradient(to right, #2a3a91, #324fcc);")
+    img.logo(src="/login/images/logo-white-bat.png")
+  .contents.order-1.order-md-2
+    .container
+      .row.align-items-center.justify-content-center
+        .col-md-7
+          h1.gradient-text Log in
+          p.mb-4 Welcome to BAT Loyalty Program 
+
+          form.form(method='POST', action='/login')
+            .form-group.first
+              label(for='username') Username
+              input#username.form-control(name='username', type='text', required, autocomplete='off' placeholder='Username')
+            .form-group.last.mb-3
+              label(for='password') Password
+              input#password.form-control(name='password', type='password', required, autocomplete='off' placeholder='Password')
+            .d-flex.mb-5.align-items-center
+              label.control.control--checkbox.mb-0
+                span.caption Remember me
+                input(type='checkbox' checked='checked')
+                .control__indicator
+              span.ml-auto
+                a.forgot-pass(href='#') Forgot Password
+            input.btn.btn-block.btn-primary(type='submit' value='Log In')
