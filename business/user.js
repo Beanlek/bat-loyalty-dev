@@ -44,6 +44,9 @@ User.register = async function(req,res){
 
     let email = data.email;
     let mobile = data.mobile;
+
+    let security_image = data.security_image;
+    let security_phrase = data.security_phrase;
     
     if(!id) return res.status(422).send({errMsg: 'Please enter User Id / Username.'});
     if(!name) return res.status(422).send({errMsg: 'Please enter Name.'});
@@ -58,6 +61,9 @@ User.register = async function(req,res){
 
     if(!email || !email.includes('@')) return res.status(422).send({errMsg: 'Please enter a correct Email format.'});
     if(!mobile) return res.status(422).send({errMsg: 'Please enter Phone Number.'});
+
+    if(!security_image) return res.status(422).send({errMsg: 'Please choose security image.'});
+    if(!security_phrase) return res.status(422).send({errMsg: 'Please choose security phrase.'});
 
     if(Password.score(password) < 4) {
       return res.status(422).send({errMsg: 'Password complexity requirement not met.'});
@@ -103,6 +109,9 @@ User.register = async function(req,res){
             mobile: mobile,
             user_type: 'cashier',
 
+            security_image: security_image,
+            security_phrase: security_phrase,
+
             created_by: id,
             created_at: created_at,
             updated_by: id,
@@ -119,7 +128,6 @@ User.register = async function(req,res){
   
     return res.send({status:'success', msg:`User ${id} successfully registered.`});
 }
-
 User.read = async function(req, res){
     let mobile = req.params.mobile;
     let user;
