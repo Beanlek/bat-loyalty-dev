@@ -12,7 +12,8 @@ const YAML = require('yamljs');
 
 const indexRouter = require('./routes/index');
 const apiAuthRouter = require('./routes/api_auth');
-const apiUserRouter = require('./routes/api_user');
+const apiUserRouter = require('./routes/api_user'); 
+const apiProductRouter = require('./routes/api_product');
 
 const app = express();
 
@@ -20,7 +21,8 @@ app.use(express.json());
 
 // app.use('/', indexRouter);
 app.use('/api/auth', apiAuthRouter);
-app.use('/api/user', apiUserRouter);
+app.use('/api/user', apiUserRouter); 
+app.use('/api/product', apiProductRouter); 
 
 
 // --- catch 404 and forward to error handler
