@@ -29,7 +29,9 @@ router.post('/app/login', async (req, res) => {
     }
 
     let user = await db.users.findOne({
-        where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('mobile')), sq.fn('lower', mobile))
+        where: {
+            [db.Sequelize.Op.or]: [{ id: mobile }, { mobile: mobile }],
+        },
     });
 
     if(!user){

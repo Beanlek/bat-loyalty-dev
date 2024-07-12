@@ -10,12 +10,20 @@ const nocache = require('nocache');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
+//Mobile
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const userRouter = require('./routes/a_user');
 
 const apiAuthRouter = require('./routes/api_auth');
-const apiUserRouter = require('./routes/api_user');
+const apiUserRouter = require('./routes/api_user'); 
+const apiProductRouter = require('./routes/api_product'); 
+const apiAccountRouter = require('./routes/api_account'); 
+const apiOutletRouter = require('./routes/api_outlet'); 
+
+//Web
+const productRouter = require('./routes/a_product'); 
+const outletRouter = require('./routes/a_outlet');
 
 const app = express();
 
@@ -40,7 +48,20 @@ app.use('/a/user', userRouter);
 
 // app api
 app.use('/api/auth', apiAuthRouter);
-app.use('/api/user', apiUserRouter);
+app.use(express.json()); 
+// app.use(express.urlencoded({ extended: true })); 
+
+//Web Router
+app.use('/a/product', productRouter); 
+app.use('/a/outlet', outletRouter); 
+
+// app.use('/', indexRouter); 
+//Mobile Router 
+app.use('/api/auth', apiAuthRouter); 
+app.use('/api/user', apiUserRouter); 
+app.use('/api/product', apiProductRouter);  
+app.use('/api/account', apiAccountRouter); 
+app.use('/api/outlet', apiOutletRouter); 
 
 
 // 404 error handler

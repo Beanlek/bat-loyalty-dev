@@ -14,29 +14,17 @@ const sq = db.sequelize;
 const df = 'YYYY-MM-DD';
 const limit = 20;
 
-router.post('/app/register', async (req,res) => {
-    biz.users.register(req,res);
-});
-
-router.get('/app/self', apiAuth.checkToken, async (req,res) => {
+router.get('/app/list', apiAuth.checkToken, async (req,res) => {
     req.params.mobile = req.token.mobile;
-    biz.users.read(req,res);
+    biz.products.list(req,res);
 }); 
 
-router.get('/app/user_list', async (req, res) =>{ 
-    biz.users.user_list(req, res); 
-});
-
-router.get('/app/registerValidate', async (req, res) => { 
-    biz.users.isExistPhoneUsername(req, res); 
+router.get('/app/get/:id', apiAuth.checkToken, async (req, res) => { 
+    biz.products.getById(req,res);
 }); 
-
-router.get('/app/getOutletRegister', async (req, res) => { 
-    biz.users.getOutletRegister(req, res); 
-})
 
 router.all('/*', (req, res) => {
     res.status(404).send('API not found');  
-});
+})
 
-module.exports = router;
+module.exports = router; 
