@@ -53,6 +53,7 @@
     "slick-lightbox": "^0.2.12",
     "sortablejs": "^1.14.0",
     "swagger-ui-express": "^5.0.0",
+    "tesseract.js": "^5.1.0",
     "uglifyjs": "^2.4.11",
     "uuid": "^8.3.2",
     "xlsx": "^0.18.5",

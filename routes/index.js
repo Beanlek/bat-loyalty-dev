@@ -22,6 +22,12 @@ router.get('/user_maintenance', jwtAuth.checkToken, async (req, res, next)=>{
   return res.render('user_maintenance', {user_id, user_type});
 });
 
+router.get('/ocr', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('ocr', {user_id, user_type});
+});
+
 router.get('/logout', jwtAuth.checkToken, async (req, res, next)=>{
   let {user_id, user_type} = req.token;
   let user = await db.users.findOne({where: {id: {[Op.eq]: user_id}}});

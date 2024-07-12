@@ -13,6 +13,7 @@ const YAML = require('yamljs');
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
 const userRouter = require('./routes/a_user');
+const ocrRouter = require('./routes/a_ocr');
 
 const apiAuthRouter = require('./routes/api_auth');
 const apiUserRouter = require('./routes/api_user');
@@ -37,6 +38,7 @@ app.use(logger('customFormat'));
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/a/user', userRouter);
+app.use('/a/ocr', ocrRouter);
 
 // app api
 app.use('/api/auth', apiAuthRouter);

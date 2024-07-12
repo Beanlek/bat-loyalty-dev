@@ -1,0 +1,11 @@
+extends layout
+
+block styles
+    link(rel='stylesheet', href='/css/ocr.css')
+    script(src="/js/ocr.js")
+
+block content
+    h1 Upload a File
+    form(action="/ocrPost" method="post" enctype="multipart/form-data")
+        input(type="file" name="file" required)
+        button(type="submit") Upload
