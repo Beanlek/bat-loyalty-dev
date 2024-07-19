@@ -1,0 +1,93 @@
+/* user_maintenance.css */
+
+/* General styles */
+.action {
+    margin-bottom: 20px;
+}
+
+/* Search bar */
+.searchbar {
+    margin-bottom: 10px;
+}
+
+.searchbar input[type="search"] {
+    width: 250px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Filter section */
+.filter-type,
+.filter-time {
+    margin-bottom: 10px;
+}
+
+.filter-type select,
+.filter-time select {
+    width: 150px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Pagination */
+.paginator {
+    margin-bottom: 10px;
+}
+
+.paginator input[type="number"] {
+    width: 60px;
+    padding: 6px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Table styles */
+.data-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-list th,
+.data-list td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.data-list th {
+    background-color: #f9f9f9;
+}
+
+/* Loading indicator */
+.loading-indicator {
+    display: none; /* Initially hidden */
+    font-size: 14px;
+    color: #555;
+}
+
+/* Outlet link style */
+.data-list td a {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+/* Profile section */
+.title-bar__profile {
+    float: right;
+    margin-top: 10px;
+    margin-right: 20px;
+    font-size: 14px;
+}
+
+/* Add this to /css/table.css */
+#userName {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 1.2em;
+    margin-left: 5px;
+}

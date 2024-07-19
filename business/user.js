@@ -18,125 +18,95 @@ const limit = 20;
 let User = {};
 
 User.register = async function(req,res){
-    let created_at = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'Asia/Kuala_Lumpur',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(new Date());
-
-    let data = req.body.data;
-    console.log(data);
-    // let data = JSON.parse(_data.data);
-  
-    let id = data.id; //username
-    let name = data.name;
-    let password = data.password;
-
-    let address1 = data.address1;
-    let address2 = data.address2;
-    let address3 = data.address3;
-    let postcode = data.postcode;
-    let city = data.city;
-    let state = data.state;
-
-    let email = data.email;
-    let mobile = data.mobile;
-    
-    if(!id) return res.status(422).send({errMsg: 'Please enter User Id / Username.'});
-    if(!name) return res.status(422).send({errMsg: 'Please enter Name.'});
-    if(!password) return res.status(422).send({errMsg: 'Please enter Password.'});
-
-    if(!address1) return res.status(422).send({errMsg: 'Please enter Address1.'});
-    if(!address2) return res.status(422).send({errMsg: 'Please enter Address2.'});
-    if(!address3) return res.status(422).send({errMsg: 'Please enter Address3.'});
-    if(!postcode) return res.status(422).send({errMsg: 'Please enter Postcode.'});
-    if(!city) return res.status(422).send({errMsg: 'Please enter City.'});
-    if(!state) return res.status(422).send({errMsg: 'Please enter State.'});
-
-    if(!email || !email.includes('@')) return res.status(422).send({errMsg: 'Please enter a correct Email format.'});
-    if(!mobile) return res.status(422).send({errMsg: 'Please enter Phone Number.'});
-
-    if(Password.score(password) < 4) {
-      return res.status(422).send({errMsg: 'Password complexity requirement not met.'});
-    }
-  
-    let transaction;
-    let user;
-    let phone;
-
-    try {
-     
-        user = await db.users.findOne({
-            attributes: {exclude: ['password']},
-            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', id))
-        });
-    
-        if(user) return res.status(422).send({status:'failed', errMsg:'Username is already taken. Please try another username.'})
-        
-        phone = await db.users.findOne({
-            attributes: {exclude: ['password']},
-            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('mobile')), sq.fn('lower', mobile))
-        });
-    
-        if(phone) return res.status(422).send({status:'failed', errMsg:'Phone number is already registered.'})
-    
-        transaction = await sq.transaction();
-    
-        let hash = bcrypt.hashSync(password, conf.saltRounds);
-        await db.users.create({
-            id: id,
-            name: name,
-            password: hash,
-            active: true,
-
-            address1: address1,
-            address2: address2,
-            address3: address3,
-            postcode: postcode,
-            city: city,
-            state: state,
-            
-            email: email,
-            mobile: mobile,
-            user_type: 'cashier',
-
-            created_by: id,
-            created_at: created_at,
-            updated_by: id,
-            updated_at: created_at
-        },{transaction});
-
-        await transaction.commit();
-  
-    } catch(e) {
-      if(transaction) transaction.rollback();
-      console.error(e);
-      return res.status(500).send({status:'failed', errMsg: 'Failed to register.'});
-    }
-  
-    return res.send({status:'success', msg:`User ${id} successfully registered.`});
+    // ... (unchanged)
 }
 
 User.read = async function(req, res){
-    let mobile = req.params.mobile;
-    let user;
+    // ... (unchanged)
+}
+
+User.list = async function(req,res){
+  let user_id = req.token.user_id;
+  let user_type = req.token.user_type;
   
-    try{
-        user = await db.users.findOne({
-            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('mobile')), sq.fn('lower', mobile))
-        });
-    
-        if(!user) return res.status(404).send({status: 'Failed', errMsg: 'User not found.'});
+  let {keyword, lastlogin} = req.query;
+
+  let type = req.query.type || 'all';
+  let active = req.query.active || 'all';
+  let searchby = req.query.searchby || 'userId';
+
+  let page = req.query.page;
+  let sortColumn = req.query.sort_column;
+  let sortBy = req.query.sort_by;
+  let limitRows = req.query.limit_rows;
+
+  let order = [['id']];
+  let where = {};
+
+  page = (!page || isNaN(page) || parseInt(page) < 0)? 0 : parseInt(page) - 1;
+  limitRows = (isNaN(limitRows) || !limitRows) ? limit : limitRows
+
+  let offset = page * limitRows;
+
+  if(searchby == 'userId' && keyword) where.id = {[Op.iLike]: `%${keyword}%`}
+  if(searchby == 'fullName' && keyword) where.name = {[Op.iLike]: `%${keyword}%`};
+  if(type.toLowerCase() == 'cashier') where.user_type = {[Op.eq]: 'cashier'};
+  if(type.toLowerCase() == 'admin') where.user_type = {[Op.eq]: 'admin'};
+  if(active.toLowerCase() == 'active') where.active = {[Op.eq]: true};
+  if(active.toLowerCase() == 'inactive') where.active = {[Op.eq]: false};
   
-    }catch(e){
-        console.error(e);
-        return res.status(500).send({status: 'Failed', errMsg: 'Failed to find user.'})
+  if(lastlogin){
+    let ll = lastlogin.split(',');
+
+    if(ll.length == 1){
+      if(!dayjs(ll[0], df).isValid()) return res.status(422).send({errMsg: 'Date format is invalid.'});
+      where.last_login_at = {[Op.gte]: ll[0]};
+    } else{
+      if(!dayjs(ll[0], df).isValid() || !dayjs(ll[1], df).isValid()) return res.status(422).send({errMsg: 'Date format is invalid.'});
+      where.last_login_at = { [Op.between]: [ 
+        dayjs(ll[0]).startOf('day').toDate(), 
+        dayjs(ll[1]).endOf('day').toDate() 
+      ]}
     }
-    
-    return res.send({user});
+  }
+
+  if (sortColumn != null && sortColumn.trim() != '' && sortBy != null && sortBy.trim() != '') {
+    order = [[sortColumn, sortBy]];
+  }
+
+  let user_listing;
+  
+  try{
+    user_listing = await db.users.findAndCountAll({
+      order: order,
+      where: where,
+      offset: offset,
+      limit: limitRows, 
+      raw: true,
+      attributes: {
+        include: [
+          [
+            sq.literal(`(SELECT COUNT(*) FROM outlets WHERE outlets.created_by = users.id)`),
+            'outlet_count'
+          ]
+        ]
+      },
+      logging: console.log
+    });
+
+    user_listing.rows = user_listing.rows.map(user => ({
+      ...user,
+      has_outlets: user.outlet_count > 0
+    }));
+
+    user_listing.limit = limitRows;
+    user_listing.offset = offset;
+
+  }catch(e){
+    console.error(e);
+    return res.status(500).send({errMsg: 'Failed to get users.'});
+  }
+  return res.send({status: 'success', user_listing});
 }
 
 module.exports = User;
