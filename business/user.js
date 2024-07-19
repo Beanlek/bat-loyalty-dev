@@ -17,6 +17,36 @@ const limit = 20;
 
 let User = {}; 
 
+User.getOutletRegister = async function(req, res){ 
+    let companyId = req.body.id; 
+
+    if (!companyId) return res.status(422).send({errMsg: 'Missing payload'}); 
+   
+    let isOutletExist = await db.outlets.findOne({ 
+        where: {
+            account_id : companyId 
+        }
+    }); 
+
+    if (!isOutletExist) return res.status(422).send({errMsg: `No Outlets for the ID = ${companyId} is found`})
+
+    let outletList; 
+
+    try { 
+        outletList = await db.outlets.findAll({ 
+            attributes: [ 'id', 'name' ],
+            where : { account_id : companyId }
+        }) 
+
+        if(!outletList) return res.status(422).send({errMsg: 'No outlets for the company'}); 
+
+        res.send(outletList); 
+    }catch (e) { 
+        console.error(e); 
+        return res.status(500).send({errMsg: 'Internal Server Error'}); 
+    }
+}
+
 User.isExistPhoneUsername = async function(req, res){ 
     let name = req.body.name; 
     let mobile =  req.body.mobile; 
@@ -44,7 +74,7 @@ User.isExistPhoneUsername = async function(req, res){
         return res.status(500).send({errMsg: 'Internal Server Error'}); 
     } 
 
-    return res.status(200).send({status:'success', message: 'Username and Phone Number is available'})
+    return res.status(200).send({message: 'Username and Phone Number is available'})
 }
 
 User.register = async function(req,res){
@@ -75,6 +105,8 @@ User.register = async function(req,res){
     let email = data.email;
     let mobile = data.mobile;
 
+    let outlet_id = data.outlet_id;
+
     let security_image = data.security_image;
     let security_phrase = data.security_phrase;
     
@@ -92,8 +124,12 @@ User.register = async function(req,res){
     if(!email || !email.includes('@')) return res.status(422).send({errMsg: 'Please enter a correct Email format.'});
     if(!mobile) return res.status(422).send({errMsg: 'Please enter Phone Number.'});
 
+    if(!outlet_id) return res.status(422).send({errMsg: 'Please enter Outlet ID.'});
+
     if(!security_image) return res.status(422).send({errMsg: 'Please choose security image.'});
     if(!security_phrase) return res.status(422).send({errMsg: 'Please choose security phrase.'});
+    console.log(security_image)
+    console.log(security_phrase)
 
     if(Password.score(password) < 4) {
       return res.status(422).send({errMsg: 'Password complexity requirement not met.'});
@@ -102,6 +138,7 @@ User.register = async function(req,res){
     let transaction;
     let user;
     let phone;
+    let outlet;
 
     try {
      
@@ -118,10 +155,28 @@ User.register = async function(req,res){
         });
     
         if(phone) return res.status(422).send({status:'failed', errMsg:'Phone number is already registered.'})
+        
+        outlet = await db.outlets.findOne({
+            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', outlet_id))
+        });
+    
+        if(outlet === null) return res.status(422).send({status:'failed', errMsg:'Outlet does not exist.'})
     
         transaction = await sq.transaction();
     
         let hash = bcrypt.hashSync(password, conf.saltRounds);
+
+        console.log({id})
+        await db.user_account.create({
+            user_id: id,
+            outlet_id: outlet_id,
+
+            created_by: id,
+            created_at: created_at,
+            updated_by: id,
+            updated_at: created_at
+        })
+        
         await db.users.create({
             id: id,
             name: name,
@@ -141,6 +196,8 @@ User.register = async function(req,res){
 
             security_image: security_image,
             security_phrase: security_phrase,
+
+            points: '0',
 
             created_by: id,
             created_at: created_at,
@@ -178,7 +235,6 @@ User.read = async function(req, res){
 } 
 
 User.user_list = async function(req, res){ 
-    let user; 
     try{ 
             const users = await db.users.findAll({ 
                 attributes: ['id', 'name', 'email', 'mobile', 'address1', 'address2', 'address3', 'postcode', 'city', 'state', 'last_login_at', 'active', 'created_at', 'created_by'], 

@@ -27,6 +27,10 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.users = require('./users.js')(sequelize, Sequelize);
+db.user_account = require('./user_account.js')(sequelize, Sequelize);
+db.products = require('./products.js')(sequelize, Sequelize); 
+db.outlets = require('./outlets.js')(sequelize, Sequelize); 
+db.accounts = require('./accounts.js')(sequelize, Sequelize); 
 
 sequelize.sync();
 

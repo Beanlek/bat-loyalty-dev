@@ -49,6 +49,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: true
       },
+      points:{
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
       last_login_at:{
         type: Sequelize.DATE,
         allowNull: true
@@ -56,6 +60,14 @@ module.exports = (sequelize, Sequelize) => {
       user_type:{
         type: Sequelize.TEXT,
         allowNull: false
+      },
+      security_image:{
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      security_phrase:{
+        type: Sequelize.TEXT,
+        allowNull: true
       },
 
       created_by: {

@@ -16,7 +16,6 @@ const msgResetFailed ='Username not exist!'
 const msgUserFound = 'Reset password link sent successfully!'
 const msgEmailNotFound = 'No email address assigned to this profile. Please contact the system administrator.'
 
-
 router.post('/app/login', async (req, res) => {
     let token;
     let expires_in = '36h';
