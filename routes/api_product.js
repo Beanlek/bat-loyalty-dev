@@ -19,4 +19,12 @@ router.get('/app/list', apiAuth.checkToken, async (req,res) => {
     biz.products.list(req,res);
 }); 
 
+router.get('/app/get/:id', apiAuth.checkToken, async (req, res) => { 
+    biz.products.getById(req,res);
+}); 
+
+router.all('/*', (req, res) => {
+    res.status(404).send('API not found');  
+})
+
 module.exports = router; 

@@ -1,0 +1,16 @@
+extends layout
+
+block styles
+    link(rel='stylesheet', href='/css/user_maintenance.css')
+    script(src="/js/user_maintenance.js")
+
+block header
+    .title-bar
+        .title-bar__title
+            h1 #{page}
+            span.breadcrumbs Dashboard > #{page}
+        .title-bar__profile
+            span #{user_id}
+    
+
+block content

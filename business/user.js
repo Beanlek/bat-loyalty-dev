@@ -17,6 +17,36 @@ const limit = 20;
 
 let User = {}; 
 
+User.getOutletRegister = async function(req, res){ 
+    let companyId = req.body.id; 
+
+    if (!companyId) return res.status(422).send({errMsg: 'Missing payload'}); 
+   
+    let isOutletExist = await db.outlets.findOne({ 
+        where: {
+            account_id : companyId 
+        }
+    }); 
+
+    if (!isOutletExist) return res.status(422).send({errMsg: `No Outlets for the ID = ${companyId} is found`})
+
+    let outletList; 
+
+    try { 
+        outletList = await db.outlets.findAll({ 
+            attributes: [ 'id', 'name' ],
+            where : { account_id : companyId }
+        }) 
+
+        if(!outletList) return res.status(422).send({errMsg: 'No outlets for the company'}); 
+
+        res.send(outletList); 
+    }catch (e) { 
+        console.error(e); 
+        return res.status(500).send({errMsg: 'Internal Server Error'}); 
+    }
+}
+
 User.isExistPhoneUsername = async function(req, res){ 
     let name = req.body.name; 
     let mobile =  req.body.mobile; 
@@ -27,7 +57,7 @@ User.isExistPhoneUsername = async function(req, res){
 
         name = await db.users.findOne({
             attributes: {exclude: ['password']},
-            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', name))
+            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('name')), sq.fn('lower', name))
         });
     
         if(name) return res.status(422).send({status:'failed', errMsg:'Username is already taken. Please try another username.'})
@@ -44,7 +74,7 @@ User.isExistPhoneUsername = async function(req, res){
         return res.status(500).send({errMsg: 'Internal Server Error'}); 
     } 
 
-    return res.status(200).send({status:'success', message: 'Username and Phone Number is available'})
+    return res.status(200).send({message: 'Username and Phone Number is available'})
 }
 
 User.register = async function(req,res){
@@ -74,9 +104,6 @@ User.register = async function(req,res){
 
     let email = data.email;
     let mobile = data.mobile;
-
-    let security_image = data.security_image;
-    let security_phrase = data.security_phrase;
     
     if(!id) return res.status(422).send({errMsg: 'Please enter User Id / Username.'});
     if(!name) return res.status(422).send({errMsg: 'Please enter Name.'});
@@ -91,9 +118,6 @@ User.register = async function(req,res){
 
     if(!email || !email.includes('@')) return res.status(422).send({errMsg: 'Please enter a correct Email format.'});
     if(!mobile) return res.status(422).send({errMsg: 'Please enter Phone Number.'});
-
-    if(!security_image) return res.status(422).send({errMsg: 'Please choose security image.'});
-    if(!security_phrase) return res.status(422).send({errMsg: 'Please choose security phrase.'});
 
     if(Password.score(password) < 4) {
       return res.status(422).send({errMsg: 'Password complexity requirement not met.'});
@@ -139,25 +163,23 @@ User.register = async function(req,res){
             mobile: mobile,
             user_type: 'cashier',
 
-            security_image: security_image,
-            security_phrase: security_phrase,
-
             created_by: id,
             created_at: created_at,
             updated_by: id,
             updated_at: created_at
         },{transaction});
 
-        await transaction.commit(); 
+        await transaction.commit();
   
     } catch(e) {
-      if(transaction) transaction.rollback(); 
+      if(transaction) transaction.rollback();
       console.error(e);
       return res.status(500).send({status:'failed', errMsg: 'Failed to register.'});
     }
   
     return res.send({status:'success', msg:`User ${id} successfully registered.`});
 }
+
 User.read = async function(req, res){
     let mobile = req.params.mobile;
     let user;
@@ -175,25 +197,90 @@ User.read = async function(req, res){
     }
     
     return res.send({user});
-} 
+}
 
-User.user_list = async function(req, res){ 
-    let user; 
-    try{ 
-            const users = await db.users.findAll({ 
-                attributes: ['id', 'name', 'email', 'mobile', 'address1', 'address2', 'address3', 'postcode', 'city', 'state', 'last_login_at', 'active', 'created_at', 'created_by'], 
-                where: db.Sequelize.where(
-                    db.Sequelize.fn('lower', db.Sequelize.col('user_type')),
-                    'cashier')
-                })  
-            res.send(users); 
+User.list = async function(req,res){
+  let user_id = req.token.user_id;
+  let user_type = req.token.user_type;
+  
+  let {keyword, lastlogin} = req.query;
+
+  let type = req.query.type || 'all';
+  let active = req.query.active || 'all';
+  let searchby = req.query.searchby || 'userId';
+
+  let page = req.query.page;
+  let sortColumn = req.query.sort_column;
+  let sortBy = req.query.sort_by;
+  let limitRows = req.query.limit_rows;
+
+  let order = [['id']];
+  let where = {};
+
+  page = (!page || isNaN(page) || parseInt(page) < 0)? 0 : parseInt(page) - 1;
+  limitRows = (isNaN(limitRows) || !limitRows) ? limit : limitRows
+
+  let offset = page * limitRows;
+
+  if(searchby == 'userId' && keyword) where.id = {[Op.iLike]: `%${keyword}%`}
+  if(searchby == 'fullName' && keyword) where.name = {[Op.iLike]: `%${keyword}%`};
+  if(type.toLowerCase() == 'cashier') where.user_type = {[Op.eq]: 'cashier'};
+  if(type.toLowerCase() == 'admin') where.user_type = {[Op.eq]: 'admin'};
+  if(active.toLowerCase() == 'active') where.active = {[Op.eq]: true};
+  if(active.toLowerCase() == 'inactive') where.active = {[Op.eq]: false};
+  
+  if(lastlogin){
+    let ll = lastlogin.split(',');
+
+    if(ll.length == 1){
+      if(!dayjs(ll[0], df).isValid()) return res.status(422).send({errMsg: 'Date format is invalid.'});
+      where.last_login_at = {[Op.gte]: ll[0]};
+    } else{
+      if(!dayjs(ll[0], df).isValid() || !dayjs(ll[1], df).isValid()) return res.status(422).send({errMsg: 'Date format is invalid.'});
+      where.last_login_at = { [Op.between]: [ 
+        dayjs(ll[0]).startOf('day').toDate(), 
+        dayjs(ll[1]).endOf('day').toDate() 
+      ]}
     }
-    catch (err) {
-        console.log(err); 
-        res.status(500).json({ 
-            message: 'Internal Server Error'
-        })
-    }
+  }
+
+  if (sortColumn != null && sortColumn.trim() != '' && sortBy != null && sortBy.trim() != '') {
+    order = [[sortColumn, sortBy]];
+  }
+
+  let user_listing;
+  
+  try{
+    user_listing = await db.users.findAndCountAll({
+      order: order,
+      where: where,
+      offset: offset,
+      limit: limitRows, 
+      raw: true,
+      attributes: {
+        include: [
+          [
+            sq.literal(`(SELECT COUNT(*) FROM outlets WHERE outlets.created_by = users.id)`),
+            'outlet_count'
+          ]
+        ]
+      },
+      logging: console.log
+    });
+
+    user_listing.rows = user_listing.rows.map(user => ({
+      ...user,
+      has_outlets: user.outlet_count > 0
+    }));
+
+    user_listing.limit = limitRows;
+    user_listing.offset = offset;
+
+  }catch(e){
+    console.error(e);
+    return res.status(500).send({errMsg: 'Failed to get users.'});
+  }
+  return res.send({status: 'success', user_listing});
 }
 
 module.exports = User;

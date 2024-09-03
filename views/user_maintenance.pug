@@ -1,0 +1,63 @@
+extends layout
+
+block styles
+    link(rel='stylesheet', href='/css/table.css')
+    script(src="/js/user_maintenance.js")
+
+block header
+    .title-bar
+        .title-bar__title
+            h1.block-header User Maintenance
+            //- span#userName User Name: <span id="userName"></span>
+            span.breadcrumbs Dashboard > Users Maintenance
+        .title-bar__profile
+            span User ID: #{user_id}
+
+block content
+    .action
+        .action__query
+            .searchbar
+                form.bar(action="")
+                    input.search(type="search" placeholder="Search by ID, name, or email")
+            .filter-type
+                select#user_type
+                    option(value="all") All
+                    option(value="admin") Admin
+                    option(value="cashier") Cashier
+            .filter-time
+                select#time
+                    option(value="any_time") Any Time
+                    option(value="today") Today
+                    option(value="week-to-date") Week-to-date
+                    option(value="month-to-date") Month-to-date
+                    option(value="year-to-date") Year-to-date
+                    option(value="custom-date") Custom-date
+                    option(value="custom-range") Custom-range
+        .action__pagination
+            .paginator
+                span Page
+                input.current-page(type="number" min="1")
+                span.total-pages of 1
+        .stepper
+            button.prev
+                i(class="fa-solid fa-chevron-left")
+            button.next
+                i(class="fa-solid fa-chevron-right")
+    table.data-list
+        thead
+            tr
+                th No.
+                th ID
+                th Full Name
+                th Email
+                th Billing Address
+                th Last Login
+                th Status
+                th Created At
+                th Created By
+                th Outlet
+        tbody
+    .loading-indicator Loading...
+
+    script.
+        var currentUserId = '#{user_id}';

@@ -16,12 +16,10 @@ const msgResetFailed ='Username not exist!'
 const msgUserFound = 'Reset password link sent successfully!'
 const msgEmailNotFound = 'No email address assigned to this profile. Please contact the system administrator.'
 
-
 router.post('/app/login', async (req, res) => {
     let token;
     let expires_in = '36h';
     let token_expiry_time;
-    let allotment_date;
 
     var {mobile, password, device_id} = req.body;
 
@@ -51,8 +49,6 @@ router.post('/app/login', async (req, res) => {
     user.session_id = uuidv4();
     await user.save();
 
-    console.log(user)
-
     let _tkn = {
         user_id: user.id,
         user_type: user.user_type,
@@ -66,14 +62,12 @@ router.post('/app/login', async (req, res) => {
     try{
         token = jwt.sign(_tkn, conf.cookie.secret,{expiresIn: expires_in});
         token_expiry_time = dayjs(JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).exp * 1000);
-        
     } catch(err){
         console.error(msgSignFailed);
         return res.status(422).send({status: 'failed', errMsg: msgSignFailed});
     }
-
-    let status = 'success'
-    return res.json({status, token, token_expiry_time, allotment_date});
+        let status = 'success'
+        return res.json({status, token, token_expiry_time});
     }
 );
 

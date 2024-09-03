@@ -25,14 +25,18 @@ router.get('/app/self', apiAuth.checkToken, async (req,res) => {
 
 router.get('/app/user_list', async (req, res) =>{ 
     biz.users.user_list(req, res); 
-}) 
+});
 
 router.get('/app/registerValidate', async (req, res) => { 
     biz.users.isExistPhoneUsername(req, res); 
+}); 
+
+router.get('/app/getOutletRegister', async (req, res) => { 
+    biz.users.getOutletRegister(req, res); 
 })
 
 router.all('/*', (req, res) => {
     res.status(404).send('API not found');  
-})
+});
 
 module.exports = router;
