@@ -2,8 +2,77 @@ extends layout
 
 block styles
     link(rel='stylesheet', href='/css/dashboard.css')
+
     script(src="/js/dashboard.js")
+
+block header 
+    .title-bar
+        .title-bar__title
+            h1 Welcome back #{user_id}
+            span 27 Jun 2024
+        .title-bar__profile
+            span #{user_id}
 
 block content
     .dashboard
-        p This is dashboard!
+    
+    .page-container
+        .header-container
+            h2 Summary
+            p.view-all View All
+        .summary
+            .box
+                span.main-number 123
+                span.top-left-text Top Text
+                span.bottom-right-number 456
+            .box
+                span.main-number 789
+                span.top-left-text Another Text
+                span.bottom-right-number 101
+            .box
+                span.main-number 112
+                span.top-left-text More Text
+                span.bottom-right-number 131
+      
+        h2  New Unread Receipt 
+        .receipt
+                .box2
+                    .top-content
+                        img.image(src="/img/logo/logo-default-bat.png", alt="Image Alt Text")
+                        .text-content
+                            p Siti Aesha
+                            p aesha@company.com
+                            p C000047
+                    .bottom-content
+                        button(type="button") Process
+                        p 29/5/2024 15:46:33
+                .box2
+                    .top-content
+                        img.image(src="/img/logo/logo-default-bat.png", alt="Image Alt Text")
+                        .text-content
+                            p Siti Aesha
+                            p aesha@company.com
+                            p C000047
+                    .bottom-content
+                        button(type="button") Process
+                        p 29/5/2024 15:46:33
+                .box2
+                    .top-content
+                        img.image(src="/img/logo/logo-default-bat.png", alt="Image Alt Text")
+                        .text-content
+                            p Siti Aesha
+                            p aesha@company.com
+                            p C000047
+                    .bottom-content
+                        button(type="button") Process
+                        p 29/5/2024 15:46:33
+
+
+
+
+
+
+
+                
+
+    

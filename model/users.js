@@ -70,32 +70,31 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true
       },
 
-      created_by: {
-        type: Sequelize.TEXT,
-        allowNull: false
-      },
-      created_at: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      updated_by: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      },
-      updated_at: {
-        type: Sequelize.DATE,
-        allowNull: true
-      },
+    created_by: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    created_at: {
+      type: Sequelize.DATE,
+      allowNull: false
+    },
+    updated_by: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      allowNull: true
+    },
 
-      session_id: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      }
-    },{
-      timestamps: true,
-      underscored: true,
-      freezeTableName: true
-    });
-    return Users;
-  }
-  
+    session_id: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    }
+  },{
+    timestamps: true,
+    underscored: true,
+    freezeTableName: true
+  });
+  return Users;
+}

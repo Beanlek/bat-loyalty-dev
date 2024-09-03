@@ -13,23 +13,30 @@ const escapeHtml = require('escape-html');
 const Op = db.Sequelize.Op;
 const sq = db.sequelize;
 const df = 'YYYY-MM-DD';
-const limit = 20; 
+const limit = 20;
 
-let Account = {}; 
+let account = {};
 
-Account.list = async function(req,res){ 
-    try{ 
-        const accounts = await db.accounts.findAll({ 
-            attributes: ['id', 'name', 'active', 'created_by', 'created_at', 'updated_by', 'updated_at']
-            })  
-        res.send(accounts); 
+let created_at = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kuala_Lumpur',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+}).format(new Date());
+
+account.list = async function (req,res){
+    
+    try {
+        const account = await db.accounts.findAll();
+
+        res.status(200).send(account);
+
+    } catch (error){
+        console.error("Error fetching account:",error);
+        res.status(500).json({error:"An error occured while fetching account." });
     }
-    catch (err) {
-        console.log(err); 
-        res.status(500).send({ 
-            errMsg: 'Internal Server Error'
-        })
-    } 
-} 
+}
 
-module.exports = Account; 
+module.exports = account;

@@ -1,32 +1,42 @@
-- const env = process.env.NODE_ENV || 'dev';
-
 doctype html
-html
-    head
-        title BAT Loyalty Program | Login
-        meta(name="viewport", content="width=device-width, initial-scale=1")
-        
-        link(rel='stylesheet', href='/css/login.css')
-        script(src='/js/login.js')
+head
+  // Required meta tags
+  meta(charset='utf-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+  link(href='https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap' rel='stylesheet')
+  link(rel='stylesheet' href='/login/fonts/icomoon/style.css')
+  link(rel='stylesheet' href='/login/css/owl.carousel.min.css')
+  // Bootstrap CSS
+  link(rel='stylesheet' href='/login/css/bootstrap.min.css')
+  // Style
+  link(rel='stylesheet' href='/login/css/style.css')
+  script(src='/login/js/jquery-3.3.1.min.js')
+  script(src='/login/js/popper.min.js')
+  script(src='/login/js/bootstrap.min.js')
+  script(src='/login/js/main.js')
+  title BAT Loyalty Program | Login
+.d-lg-flex.half
+  .bg.order-2.order-md-1(style="background: linear-gradient(to right, #2a3a91, #324fcc);")
+    img.logo(src="/login/images/logo-white-bat.png")
+  .contents.order-1.order-md-2
+    .container
+      .row.align-items-center.justify-content-center
+        .col-md-7
+          h1.gradient-text Log in
+          p.mb-4 Welcome to BAT Loyalty Program 
 
-    body
-        .header
-        .content
-            form.form(method='POST', action='/login')
-                .title
-                    .trademark
-                        span.companyName BAT 
-                        span.appName Loyalty Program 
-                        span.envName (#{env.toUpperCase()})
-                    
-                .response #{error}
-                
-                .fields
-                    .field.username
-                        input.input-field#username(name='username', type='text', required, autocomplete='off' placeholder='USERNAME')
-                    
-                    .field.password
-                        input.input-field#password(name='password', type='password', required, autocomplete='off' placeholder='PASSWORD')
-                
-                button#btnLogin(type='submit') SIGN IN
-
+          form.form(method='POST', action='/login')
+            .form-group.first
+              label(for='username') Username
+              input#username.form-control(name='username', type='text', required, autocomplete='off' placeholder='Username')
+            .form-group.last.mb-3
+              label(for='password') Password
+              input#password.form-control(name='password', type='password', required, autocomplete='off' placeholder='Password')
+            .d-flex.mb-5.align-items-center
+              label.control.control--checkbox.mb-0
+                span.caption Remember me
+                input(type='checkbox' checked='checked')
+                .control__indicator
+              span.ml-auto
+                a.forgot-pass(href='#') Forgot Password
+            input.btn.btn-block.btn-primary(type='submit' value='Log In')

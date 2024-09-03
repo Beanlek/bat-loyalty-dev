@@ -15,8 +15,11 @@ const df = 'YYYY-MM-DD';
 const limit = 20; 
 
 //change to jwtAuth for web 
-router.post('/web/create', apiAuth.checkToken, async (req, res) => { 
+router.put('/web/create', jwtAuth.checkToken, async (req, res) => { 
     biz.outlets.create(req, res); 
 });
+router.get('/web/list',jwtAuth.checkToken, async (req,res) => {
+    biz.outlets.list(req, res); 
+})
 
 module.exports = router; 

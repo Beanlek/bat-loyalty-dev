@@ -1,0 +1,45 @@
+extends layout
+
+block styles
+    link(rel='stylesheet', href='/css/table.css')
+    script(src="/js/cashier.js")
+
+block header
+    .title-bar
+        .title-bar__title
+            h1.block-header Cashier
+            //- span#userName User Name: <span id="userName"></span>
+            span.breadcrumbs Dashboard > Users Maintenance > Outlets > Cashier
+        .title-bar__profile
+            span User ID: #{user_id}
+
+block content 
+    .action
+        .action__query
+            .searchbar
+                form.bar(action="") 
+                    input.search(type="search" placeholder="Search by ID, name, or address")
+        .action__pagination
+            .paginator
+                span Page 
+                input.current-page
+                span.total-pages of 1
+        .stepper
+            button.prev
+                i(class="fa-solid fa-chevron-left")
+            button.next
+                i(class="fa-solid fa-chevron-right")
+    table.data-list
+        thead
+            tr
+                th No.
+                th ID
+                th Email
+                th Name
+                th Address
+                th Last Login
+                th Status
+                th Created At 
+                th Created By
+        tbody
+    .loading-indicator Loading...

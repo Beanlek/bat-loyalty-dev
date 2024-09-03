@@ -19,7 +19,7 @@ Auth.checkTokenForLogin = async function(req, res, next){
     if(!user) throw `User ${decoded.user_id} not found.`;
     if(user.session_id != decoded.session_id) throw `User ${decoded.user_id} session id not matching.`;
     
-    return res.redirect('/home');
+    return res.redirect('/dashboard');
 
   }catch(e){
     return next();
@@ -32,7 +32,7 @@ Auth.checkToken = async function(req, res, next){
   try{
     let decoded = await jwt.verify(token, conf.cookie.secret);
     let user = await db.users.findOne({where: {id: {[Op.eq]: decoded.user_id}}});
-    
+
     if(!user) throw `User ${decoded.user_id} not found.`;
     if(user.session_id != decoded.session_id) throw `User ${decoded.user_id} session id not matching.`;
 

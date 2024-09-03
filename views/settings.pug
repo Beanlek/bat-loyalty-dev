@@ -1,0 +1,21 @@
+extends layout 
+
+block styles
+  link(rel='stylesheet', href='/css/settings.css')
+  script(src="/js/settings.js")
+
+block header
+  .title-bar
+    .title-bar__title
+      h1 #{page}
+      span.breadcrumbs Dashboard > #{page}
+    .title-bar__profile
+      span #{user_id}
+
+block content
+  .action 
+    span This is settings 
+    .stepper 
+      div#buttonGroup
+      button#test hey
+        i(class="fa-solid fa-wrench")

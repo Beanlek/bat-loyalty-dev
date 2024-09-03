@@ -1,8 +1,8 @@
 module.exports = (sequelize,Sequelize)=> {
     var Outlets = sequelize.define('outlets', {
         id:{
-            type: Sequelize.TEXT, 
-            allowNull: false, 
+            type: Sequelize.TEXT,
+            allowNull: false,
             primaryKey: true
         },
         name:{
@@ -10,7 +10,7 @@ module.exports = (sequelize,Sequelize)=> {
             allowNull: false
         },
         active:{
-            type: Sequelize.BOOLEAN, 
+            type: Sequelize.BOOLEAN,
             defaultValue: true
         },
         address1:{

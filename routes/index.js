@@ -22,6 +22,71 @@ router.get('/user_maintenance', jwtAuth.checkToken, async (req, res, next)=>{
   return res.render('user_maintenance', {user_id, user_type});
 });
 
+router.get('/process_receipt', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('process_receipt', {user_id, user_type});
+});
+
+router.get('/account_maintenance', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('account_maintenance', {user_id, user_type});
+});
+
+router.get('/product_maintenance', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('product_maintenance', {user_id, user_type});
+});
+
+router.get('/notification_news_maintenance', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('notification_news_maintenance', {user_id, user_type});
+});
+
+router.get('/redemption_maintenance', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('redemtion_maintenance', {user_id, user_type});
+});
+
+router.get('/program_management', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('program_management', {user_id, user_type});
+});
+
+router.get('/miscellaneous_report', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('miscellaneous_report', {user_id, user_type});
+});
+
+router.get('/settings', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('settings', {user_id, user_type});
+});
+
+router.get('/outlet', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('outlet', {user_id, user_type});
+});
+
+router.get('/outlets', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('outlets', {user_id, user_type});
+});
+router.get('/cashier', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('cashier', {user_id, user_type});
+});
+
 router.get('/logout', jwtAuth.checkToken, async (req, res, next)=>{
   let {user_id, user_type} = req.token;
   let user = await db.users.findOne({where: {id: {[Op.eq]: user_id}}});
