@@ -128,6 +128,8 @@ User.register = async function(req,res){
 
     if(!security_image) return res.status(422).send({errMsg: 'Please choose security image.'});
     if(!security_phrase) return res.status(422).send({errMsg: 'Please choose security phrase.'});
+    console.log(security_image)
+    console.log(security_phrase)
 
     if(Password.score(password) < 4) {
       return res.status(422).send({errMsg: 'Password complexity requirement not met.'});
@@ -194,6 +196,8 @@ User.register = async function(req,res){
 
             security_image: security_image,
             security_phrase: security_phrase,
+
+            points: '0',
 
             created_by: id,
             created_at: created_at,

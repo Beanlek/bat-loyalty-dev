@@ -169,12 +169,17 @@ Product.update = async function(req,res){
 // } 
 
 Product.list = async function(req,res){ 
-    let products; 
+    let products;
+             
     try{ 
+                       
         const products = await db.products.findAll({ 
             attributes: ['id', 'name', 'brand', 'image', 'points'], 
-            })  
+           })  
+            
         res.send(products); 
+    
+    
     }catch (error) { 
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });

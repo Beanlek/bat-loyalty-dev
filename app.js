@@ -11,10 +11,6 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
 //Mobile
-const indexRouter = require('./routes/index');
-const loginRouter = require('./routes/login');
-const userRouter = require('./routes/a_user');
-
 const apiAuthRouter = require('./routes/api_auth');
 const apiUserRouter = require('./routes/api_user'); 
 const apiProductRouter = require('./routes/api_product'); 
@@ -22,6 +18,9 @@ const apiAccountRouter = require('./routes/api_account');
 const apiOutletRouter = require('./routes/api_outlet'); 
 
 //Web
+const indexRouter = require('./routes/index');
+const loginRouter = require('./routes/login');
+const userRouter = require('./routes/a_user');
 const productRouter = require('./routes/a_product'); 
 const outletRouter = require('./routes/a_outlet');
 
@@ -59,6 +58,9 @@ app.use('/a/outlet', outletRouter);
 //Mobile Router 
 app.use('/api/auth', apiAuthRouter); 
 app.use('/api/user', apiUserRouter); 
+app.use('/api/product', apiProductRouter);  
+app.use('/api/account', apiAccountRouter); 
+app.use('/api/outlet', apiOutletRouter); 
 app.use('/api/product', apiProductRouter);  
 app.use('/api/account', apiAccountRouter); 
 app.use('/api/outlet', apiOutletRouter); 
