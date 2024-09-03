@@ -1,0 +1,17 @@
+.select2-container--default {
+  cursor: text;
+  width: 100% !important;
+}
+
+li.select2-results__option {
+  font-size: small;
+}
+
+textarea.select2-search__field {
+  cursor: pointer;
+  font-size: small;
+}
+
+.select2-selection__rendered {
+  font-size: small !important;
+}

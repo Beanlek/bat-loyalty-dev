@@ -49,6 +49,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: true
       },
+      points:{
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+      points:{
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
       last_login_at:{
         type: Sequelize.DATE,
         allowNull: true
@@ -57,33 +65,40 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: false
       },
-
-      created_by: {
-        type: Sequelize.TEXT,
-        allowNull: false
-      },
-      created_at: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      updated_by: {
+      security_image:{
         type: Sequelize.TEXT,
         allowNull: true
       },
-      updated_at: {
-        type: Sequelize.DATE,
+      security_phrase:{
+        type: Sequelize.TEXT,
         allowNull: true
       },
 
-      session_id: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      }
-    },{
-      timestamps: true,
-      underscored: true,
-      freezeTableName: true
-    });
-    return Users;
-  }
-  
+    created_by: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    },
+    created_at: {
+      type: Sequelize.DATE,
+      allowNull: false
+    },
+    updated_by: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      allowNull: true
+    },
+
+    session_id: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    }
+  },{
+    timestamps: true,
+    underscored: true,
+    freezeTableName: true
+  });
+  return Users;
+}

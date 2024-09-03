@@ -1,0 +1,129 @@
+:root {
+    --nav-bar-width: 250px;
+}
+
+/* * :not(.select2 *){
+    border: 1px solid rgb(226, 226, 226);
+    border-collapse: collapse;
+} */
+
+body {
+    font-family: "Poppins", sans-serif;
+}
+
+span {
+    font-size: 18px;
+}
+
+.nav-bar {
+    padding: 12px;
+    width: calc(var(--nav-bar-width) - 10px);
+    height: 100vh;
+    background-color: rgb(36,41,71);
+    border-radius: 30px;
+    overflow: hidden;
+    position: fixed;
+    -webkit-transition: width .05s linear;
+    transition: 0.2s box-shadow, 0.2s background;
+    box-shadow: var(--box-shadow);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 9;
+    
+
+}
+
+.nav-bar__logo {
+    margin: 24px;
+    height: 10%;
+    object-fit: scale-down;
+}
+
+.nav-bar__main {
+    height: 70%;
+    list-style-type: none;
+    
+}
+.nav-bar__footer {
+    padding-bottom: 50px;
+    list-style-type: none;
+    margin-left: 26px;
+}
+
+.content {
+    margin-left: calc(var(--nav-bar-width) + 20px);
+}
+
+.header {
+    margin-left: calc(var(--nav-bar-width) + 20px);
+    height: 100px;
+}
+
+.action {
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+    height: 80px;
+}
+.action__query{
+    width: 80%;
+    align-items: center;
+    display: flex;
+    height: 28px;
+}
+.action__query * {
+    margin-right: 24px;
+    display: block;
+}
+.action__query .searchbar{
+    width: 40%;
+}
+.search{
+    width: 100%;
+}
+
+.action__pagination{
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+}
+.paginator .current-page {
+    width: 30px;
+    height: 30px;
+}
+
+.title-bar {
+    width: 100%;
+    padding-top: 12px;
+}
+
+.title-bar__title {
+    float: inline-start;
+}
+.title-bar__title h1 {
+    font-size: 24px;
+    margin: 0;
+}
+.title-bar__profile {
+    float: inline-end;
+}
+
+.data-list {
+    width: 100%;
+    padding: 12;
+}
+a {
+     text-decoration: none;
+     color: white;
+     
+     }
+i.icon-with-text {
+    display: inline-flex; /* Ensures icon and text are inline */
+    align-items: center; /* Aligns items vertically */
+}
+
+.icon-with-text .icon {
+    margin-right: 8px; /* Adjust the margin between icon and text */
+}

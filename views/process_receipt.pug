@@ -1,0 +1,60 @@
+extends layout
+
+block styles
+    
+
+block header
+    .title-bar
+        .title-bar__title
+            h1 #{page}
+            span.breadcrumbs Dashboard > #{page}
+        .title-bar__profile
+            span #{user_id}
+    
+
+block content
+    .action
+        .action__query
+            .searchbar
+                form.bar(action="")
+                    input.search(type="search" placeholder="search")
+            .filter-type
+                select#user_type
+                    option( value="all") All
+                    option( value="admin") Admin
+                    option( value="cashier") Cashier
+            .filter-time
+                select#time
+                    option( value="any_time") Any Time
+                    option( value="today") Today
+                    option( value="week-to-date") Week-to-date
+                    option( value="month-to-date") Month-to-date
+                    option( value="year-to-date") Year-to-date
+                    option( value="custom-date") Custom-date
+                    option( value="custom-range") Custom-range
+        .action__pagination
+            .paginator
+                span Page 
+                input.current-page
+                span of 100
+
+        .stepper
+            button.prev
+                i(class="fa-solid fa-chevron-left")
+            button.next
+                i(class="fa-solid fa-chevron-right")
+
+    
+    table.data-list
+        thead
+            tr
+                th No.
+                th Receipt 
+                th Id
+                th Status
+                th Image Token
+                th Process
+        tbody 
+           
+
+            
