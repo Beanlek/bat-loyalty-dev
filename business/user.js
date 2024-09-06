@@ -10,6 +10,7 @@ const Password = require('../common/password');
 const generator = require('generate-password');
 const db = require('../model/db.js');
 const escapeHtml = require('escape-html');
+const { type } = require('jquery');
 const Op = db.Sequelize.Op;
 const sq = db.sequelize;
 const df = 'YYYY-MM-DD';
@@ -19,28 +20,28 @@ let User = {};
 
 User.getOutletRegister = async function(req, res){ 
     let companyId = req.body.id; 
+    let postcode = req.body.postcode; 
 
-    if (!companyId) return res.status(422).send({errMsg: 'Missing payload'}); 
-   
-    let isOutletExist = await db.outlets.findOne({ 
-        where: {
-            account_id : companyId 
-        }
-    }); 
-
-    if (!isOutletExist) return res.status(422).send({errMsg: `No Outlets for the ID = ${companyId} is found`})
+    if (!companyId) return res.status(422).send({errMsg: 'Missing payload: companyId'}); 
+    if (!postcode) return res.status(422).send({errMsg: 'Missing payload: postcode'}); 
 
     let outletList; 
 
     try { 
         outletList = await db.outlets.findAll({ 
-            attributes: [ 'id', 'name' ],
-            where : { account_id : companyId }
+            attributes: [ 'id', 'name', 'address1', 'address2', 'address3', 'postcode', 'city', 'state' ],
+            where : { account_id : companyId, postcode: postcode }
         }) 
 
-        if(!outletList) return res.status(422).send({errMsg: 'No outlets for the company'}); 
+        if(!outletList) return res.status(422).send({errMsg: 'No Outlets for the ID ${companyId} and Postcode ${postcode} is found'}); 
 
-        res.send(outletList); 
+        res.send({
+          status: 'success',
+          data: {
+            count: outletList.length,
+            rows: outletList
+          }
+        }); 
     }catch (e) { 
         console.error(e); 
         return res.status(500).send({errMsg: 'Internal Server Error'}); 
@@ -57,7 +58,7 @@ User.isExistPhoneUsername = async function(req, res){
 
         name = await db.users.findOne({
             attributes: {exclude: ['password']},
-            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('name')), sq.fn('lower', name))
+            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', name))
         });
     
         if(name) return res.status(422).send({status:'failed', errMsg:'Username is already taken. Please try another username.'})
@@ -104,6 +105,11 @@ User.register = async function(req,res){
 
     let email = data.email;
     let mobile = data.mobile;
+
+    let outlet_id = data.outlet_id;
+
+    let security_image = data.security_image;
+    let security_phrase = data.security_phrase;
     
     if(!id) return res.status(422).send({errMsg: 'Please enter User Id / Username.'});
     if(!name) return res.status(422).send({errMsg: 'Please enter Name.'});
@@ -119,6 +125,11 @@ User.register = async function(req,res){
     if(!email || !email.includes('@')) return res.status(422).send({errMsg: 'Please enter a correct Email format.'});
     if(!mobile) return res.status(422).send({errMsg: 'Please enter Phone Number.'});
 
+    if(!outlet_id) return res.status(422).send({errMsg: 'Please enter Outlet ID.'});
+
+    if(!security_image) return res.status(422).send({errMsg: 'Please choose security image.'});
+    if(!security_phrase) return res.status(422).send({errMsg: 'Please choose security phrase.'});
+    
     if(Password.score(password) < 4) {
       return res.status(422).send({errMsg: 'Password complexity requirement not met.'});
     }
@@ -126,6 +137,7 @@ User.register = async function(req,res){
     let transaction;
     let user;
     let phone;
+    let outlet;
 
     try {
      
@@ -143,9 +155,27 @@ User.register = async function(req,res){
     
         if(phone) return res.status(422).send({status:'failed', errMsg:'Phone number is already registered.'})
     
+          outlet = await db.outlets.findOne({
+            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', outlet_id))
+        });
+    
+        if(outlet === null) return res.status(422).send({status:'failed', errMsg:'Outlet does not exist.'})
+    
         transaction = await sq.transaction();
     
         let hash = bcrypt.hashSync(password, conf.saltRounds);
+
+        console.log({id})
+        await db.user_accounts.create({
+            user_id: id,
+            outlet_id: outlet_id,
+
+            created_by: id,
+            created_at: created_at,
+            updated_by: id,
+            updated_at: created_at
+        })
+        
         await db.users.create({
             id: id,
             name: name,
@@ -162,6 +192,11 @@ User.register = async function(req,res){
             email: email,
             mobile: mobile,
             user_type: 'cashier',
+
+            points: '0',
+
+            security_image: security_image,
+            security_phrase: security_phrase,
 
             created_by: id,
             created_at: created_at,
@@ -182,6 +217,7 @@ User.register = async function(req,res){
 
 User.read = async function(req, res){
     let mobile = req.params.mobile;
+    let outlets;
     let user;
   
     try{
@@ -190,13 +226,37 @@ User.read = async function(req, res){
         });
     
         if(!user) return res.status(404).send({status: 'Failed', errMsg: 'User not found.'});
+
+        let qOutlet = `
+          select ua.outlet_id, o.account_id, o.name,
+          o.address1 , o.address2 , o.address3 , o.postcode , o.city , o.state ,
+          ua.active
+          from user_account ua 
+          inner join outlets o 
+          on ua.outlet_id = o.id
+          where ua.user_id = '${user.id}'
+        `
+        
+        outlets = await sq.query(qOutlet, {
+          type: sq.QueryTypes.SELECT,
+          raw: true
+        })
   
     }catch(e){
         console.error(e);
         return res.status(500).send({status: 'Failed', errMsg: 'Failed to find user.'})
     }
     
-    return res.send({user});
+    return res.send({
+      status: 'success',
+      data: {
+        user,
+        outlets: {
+          count: outlets.length,
+          rows: outlets
+        }
+      }
+    });
 }
 
 User.list = async function(req,res){

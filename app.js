@@ -25,6 +25,7 @@ const accountRouter = require('./routes/a_account');
 const userAccountRouter = require('./routes/a_user_account');
 const outletRouter = require('./routes/a_outlet');
 const productRouter = require('./routes/a_product'); 
+const loyaltyProductRouter = require('./routes/a_loyalty_product'); 
 
 const app = express();
 
@@ -66,6 +67,7 @@ app.use('/a/product', productRouter);
 app.use('/a/outlet', outletRouter);
 app.use('/a/user_account',userAccountRouter);
 app.use('/a/account', accountRouter);
+app.use('/a/loyalty_product', loyaltyProductRouter);
 
 
 // 404 error handler
