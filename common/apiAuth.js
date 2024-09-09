@@ -26,7 +26,8 @@ Auth.checkToken = async function(req, res, next){
     console.log(decoded.session_id)
     if(user.session_id != decoded.session_id) throw `User ${decoded.user_id} session id not matching.`;
 
-    req.token = decoded;
+    req.token = decoded; 
+    req.user = user; 
 
     return next();
 
