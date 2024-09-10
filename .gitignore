@@ -10,6 +10,7 @@
 
 # testing
 /coverage
+/bin/www
 
 # production
 /build

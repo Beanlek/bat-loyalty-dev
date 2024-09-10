@@ -26,11 +26,12 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.users = require('./users.js')(sequelize, Sequelize);
-db.products = require('./products.js')(sequelize, Sequelize);
-db.accounts = require('./account.js')(sequelize, Sequelize);
+db.accounts = require('./accounts.js')(sequelize, Sequelize);
+db.loyalty_products = require('./loyalty_products.js')(sequelize,Sequelize);
 db.outlets = require('./outlets.js')(sequelize,Sequelize);
+db.products = require('./products.js')(sequelize, Sequelize);
 db.user_accounts = require('./user_account.js')(sequelize,Sequelize);
+db.users = require('./users.js')(sequelize, Sequelize);
 
 sequelize.sync();
 
