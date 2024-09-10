@@ -51,11 +51,9 @@ router.post('/app/login', async (req, res) => {
 
     let _tkn = {
         user_id: user.id,
+        mobile: user.mobile,
         user_type: user.user_type,
         session_id: user.session_id,
-        name: user.name,
-        mobile: user.mobile,
-        email: user.email,
         last_login_at: user.last_login_at
     };
 

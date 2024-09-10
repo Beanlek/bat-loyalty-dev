@@ -31,9 +31,15 @@ router.get('/app/registerValidate', async (req, res) => {
     biz.users.isExistPhoneUsername(req, res); 
 }); 
 
+router.post('/app/updateSelf', apiAuth.checkToken, async (req, res) => {
+    req.params.mobile = req.token.mobile;
+    req.params.user_id = req.token.user_id;
+    biz.users.updateSelf(req, res); 
+}); 
+
 router.get('/app/getOutletRegister', async (req, res) => { 
     biz.users.getOutletRegister(req, res); 
-})
+});
 
 router.all('/*', (req, res) => {
     res.status(404).send('API not found');  

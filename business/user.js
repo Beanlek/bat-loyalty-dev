@@ -215,6 +215,80 @@ User.register = async function(req,res){
     return res.send({status:'success', msg:`User ${id} successfully registered.`});
 }
 
+User.updateSelf = async function (req,res) {
+  let created_at = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kuala_Lumpur',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+  }).format(new Date());
+
+  let data = req.body.data; console.log(data);
+
+  // check for 'where' case in sql
+  let id = req.params.user_id; // username
+  let mobile = req.params.mobile;
+
+  // can change or update
+  let name = data.name;
+  let address1 = data.address1;
+  let address2 = data.address2;
+  let address3 = data.address3;
+  let postcode = data.postcode;
+  let city = data.city;
+  let state = data.state;
+  let email = data.email;
+
+  if(!id) return res.status(422).send({errMsg: 'Please enter User Id / Username.'});
+  if(!mobile) return res.status(422).send({errMsg: 'Please enter Phone Number.'});
+
+  if(!name) return res.status(422).send({errMsg: 'Please enter Name.'});
+  if(!address1) return res.status(422).send({errMsg: 'Please enter Address1.'});
+  if(!address2) return res.status(422).send({errMsg: 'Please enter Address2.'});
+  if(!address3) return res.status(422).send({errMsg: 'Please enter Address3.'});
+  if(!postcode) return res.status(422).send({errMsg: 'Please enter Postcode.'});
+  if(!city) return res.status(422).send({errMsg: 'Please enter City.'});
+  if(!state) return res.status(422).send({errMsg: 'Please enter State.'});
+  if(!email || !email.includes('@')) return res.status(422).send({errMsg: 'Please enter a correct Email format.'});
+
+  let transaction;
+  transaction = await sq.transaction();
+
+  try {
+    await db.users.update({
+        name: name,
+        address1: address1,
+        address2: address2,
+        address3: address3,
+        postcode: postcode,
+        city: city,
+        state: state,
+        email: email,
+        updated_by: id,
+        updated_at: created_at
+    },{
+      where: {
+        id: { [Op.eq]: id},
+        mobile: { [Op.eq]: mobile},
+      },
+      raw: true, logging: console.log, 
+      transaction
+    });
+
+    await transaction.commit();
+
+  } catch (e) {
+    if(transaction) transaction.rollback();
+    console.error(e);
+    return res.status(500).send({status:'failed', errMsg: `Failed to update user ${id}.`});
+    
+  }
+
+  return res.send({status:'success', msg:`User ${id} successfully updated.`});
+}
+
 User.read = async function(req, res){
     let mobile = req.params.mobile;
     let outlets;
