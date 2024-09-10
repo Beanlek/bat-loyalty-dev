@@ -14,6 +14,11 @@ module.exports = (sequelize, Sequelize) => {
         key: 'id'
       }
     },
+    
+    active:{
+      type: Sequelize.BOOLEAN, 
+      defaultValue: true
+    }, 
 
     created_by: {
       type: Sequelize.TEXT,

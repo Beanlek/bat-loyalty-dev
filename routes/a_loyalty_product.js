@@ -14,8 +14,14 @@ const sq = db.sequelize;
 const df = 'YYYY-MM-DD';
 const limit = 20; 
 
-router.get('/app/list', async (req, res) => { 
-    biz.account.list(req, res); 
+//change to jwtAuth.checkTokenForApi for portal later 
+// router.post('/web/insert', jwtAuth.checkToken, async(req, res) => { 
+router.post('/web/insert', async(req, res) => { 
+    biz.loyalty_product.insert(req, res);
 }); 
+
+router.get('/web/list', async (req, res)=>{
+    biz.loyalty_product.list(req,res);
+});
 
 module.exports = router; 
