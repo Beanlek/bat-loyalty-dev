@@ -309,6 +309,8 @@ User.read = async function(req, res){
           inner join outlets o 
           on ua.outlet_id = o.id
           where ua.user_id = '${user.id}'
+          order by ua.active desc,
+          case when ua.active then ua.outlet_id else ua.outlet_id end asc
         `
         
         outlets = await sq.query(qOutlet, {

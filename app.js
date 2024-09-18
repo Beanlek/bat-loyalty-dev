@@ -15,6 +15,7 @@ const apiAuthRouter = require('./routes/api_auth');
 const apiUserRouter = require('./routes/api_user'); 
 const apiProductRouter = require('./routes/api_product'); 
 const apiAccountRouter = require('./routes/api_account'); 
+const apiUserAccountRouter = require('./routes/api_user_account'); 
 const apiOutletRouter = require('./routes/api_outlet');
 
 //Web
@@ -43,6 +44,7 @@ app.use('/api/auth', apiAuthRouter);
 app.use('/api/user', apiUserRouter); 
 app.use('/api/product', apiProductRouter);  
 app.use('/api/account', apiAccountRouter); 
+app.use('/api/user_account', apiUserAccountRouter); 
 app.use('/api/outlet', apiOutletRouter); 
 app.use(express.urlencoded({limit: '50mb', extended: true }));
 app.use(cookieParser());
