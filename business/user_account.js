@@ -16,6 +16,7 @@ const df = 'YYYY-MM-DD';
 const limit = 20; 
 
 let user_account = {};
+let outlet_id = {};
 
 let created_at = new Intl.DateTimeFormat('en-US', {
     timeZone: 'Asia/Kuala_Lumpur',
@@ -37,5 +38,7 @@ user_account.list = async function (req,res){
         res.status(500).json({error:"An error occured while fetching user_account." });
     }
 }
+
+
 
 module.exports = user_account;

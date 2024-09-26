@@ -21,6 +21,7 @@ const apiAuthRouter = require('./routes/api_auth');
 const apiUserRouter = require('./routes/api_user');
 const apiOutletRouter = require('./routes/api_outlet');
 
+
 const app = express();
 
 app.use(express.json());
@@ -52,6 +53,7 @@ app.use('/a/account', accountRouter);
 app.use('/api/auth', apiAuthRouter);
 app.use('/api/user', apiUserRouter);
 app.use('/api/outlet',apiOutletRouter);
+
 
 
 // 404 error handler

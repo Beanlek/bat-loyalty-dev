@@ -1,0 +1,70 @@
+extends layout
+
+block styles
+    link(rel='stylesheet', href='/css/table.css')
+    link(rel='stylesheet', href='/css/create_outlet.css')
+
+    script(src="/js/account_maintenance.js")
+    script(src="/js/create_outlet.js")
+    script(src="/js/profile.js")
+    script(src="https://cdn.jsdelivr.net/npm/malaysia-postcodes@2.3.0/dist/malaysia-postcodes.min.js")
+
+block header
+    .title-bar
+        .title-bar__title
+            h1.block-header Account Maintenance
+            span.breadcrumbs 
+                a(href='/dashboard') Dashboard
+                |  > 
+                a(href='/account_maintenance') Account Maintenance
+                |  > 
+                a(href='/outlets') Outlet
+                |  > 
+                a(href='/create_outlet') Create Outlet
+
+        .title-bar__profile
+            .profile-info
+                span#UserName 
+                br
+                span#UserEmail 
+            .profile-frame
+                img(src='/img/logo/profile.png')
+
+block content
+    .form-container
+        h2 Form
+        form#outlet-form(action="/web/create", method="POST")
+            .form-group
+                label(for="id") Outlet ID
+                input#id.form-control(type="text", name="id", required)
+            .form-group
+                label(for="name") Outlet Name
+                input#name.form-control(type="text", name="name", required)
+            .form-group
+                label(for="address1") Address 1
+                input#address1.form-control(type="text", name="address1", required)
+            .form-group
+                label(for="address2") Address 2
+                input#address2.form-control(type="text", name="address2")
+            .form-group
+                label(for="address3") Address 3
+                input#address3.form-control(type="text", name="address3")
+            .form-group
+                label(for="state") State
+                select#state.form-control(name="state", required)
+                    option(value="") Select a state
+            .form-group.inline-group
+                .form-group
+                    label(for="city") City
+                    select#city.form-control(name="city", required disabled)
+                        option(value="") Select a city
+                .form-group
+                    label(for="postcode") Postcode
+                    input#postcode.form-control(type="text", name="postcode", required)
+            .button-group
+                button.btn.btn-secondary(type="button", id="cancel-btn") Cancel
+                button.btn.btn-primary(type="submit") Create
+
+        .message-container
+            #success-message(style="display:none;") Outlet creation successful!
+            #error-message(style="display:none;") Error creating outlet. The ID outlet already exists.

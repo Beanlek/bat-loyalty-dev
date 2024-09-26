@@ -16,6 +16,14 @@ const limit = 20;
 
 router.get('/web/list', jwtAuth.checkToken, async(req, res) => { 
     biz.account.list(req, res); 
-});  
+});
+
+router.post('/web/create', jwtAuth.checkToken, async(req, res) => { 
+    biz.account.create(req, res); 
+});
+
+router.put('/web/activate/:id', jwtAuth.checkToken, async(req, res) => { 
+    biz.account.activate(req, res); 
+});
 
 module.exports = router; 

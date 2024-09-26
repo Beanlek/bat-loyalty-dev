@@ -12,6 +12,7 @@ const sq = db.sequelize;
 const msgMissingParam = 'Please enter username and password';
 const msgLoginFailed = 'Invalid username or password';
 const msgSignFailed = 'Failed to sign token';
+const msgUserNotActive = 'User is not active.';
 const msgResetFailed ='Username not exist!'
 const msgUserFound = 'Reset password link sent successfully!'
 const msgEmailNotFound = 'No email address assigned to this profile. Please contact the system administrator.'
@@ -35,6 +36,10 @@ router.post('/app/login', async (req, res) => {
     if(!user){
         return res.status(422).send({errMsg: msgLoginFailed});
     }
+    if (user.active !== true) {
+        console.error(msgUserNotActive);
+        return res.status(403).send({ errMsg: msgUserNotActive });
+      }
 
     let valid = await bcrypt.compare(password, user.password);
     if(!valid) {

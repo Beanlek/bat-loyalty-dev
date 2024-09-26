@@ -17,15 +17,221 @@ const limit = 20;
 
 let User = {};
 
-User.register = async function(req,res){
-    // ... (unchanged)
+User.getOutletRegister = async function(req, res){ 
+  let companyId = req.body.id; 
+
+  if (!companyId) return res.status(422).send({errMsg: 'Missing payload'}); 
+ 
+  let isOutletExist = await db.outlets.findOne({ 
+      where: {
+          account_id : companyId 
+      }
+  }); 
+
+  if (!isOutletExist) return res.status(422).send({errMsg: `No Outlets for the ID = ${companyId} is found`})
+
+  let outletList; 
+
+  try { 
+      outletList = await db.outlets.findAll({ 
+          attributes: [ 'id', 'name' ],
+          where : { account_id : companyId }
+      }) 
+
+      if(!outletList) return res.status(422).send({errMsg: 'No outlets for the company'}); 
+
+      res.send(outletList); 
+  }catch (e) { 
+      console.error(e); 
+      return res.status(500).send({errMsg: 'Internal Server Error'}); 
+  }
 }
+
+User.isExistPhoneUsername = async function(req, res){ 
+  let name = req.body.name; 
+  let mobile =  req.body.mobile; 
+
+  if (!name || !mobile) return res.status(422).send({errMsg: 'Missing payload'}); 
+
+  try {    
+
+      name = await db.users.findOne({
+          attributes: {exclude: ['password']},
+          where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('name')), sq.fn('lower', name))
+      });
+  
+      if(name) return res.status(422).send({status:'failed', errMsg:'Username is already taken. Please try another username.'})
+      
+      mobile = await db.users.findOne({
+          attributes: {exclude: ['password']},
+          where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('mobile')), sq.fn('lower', mobile))
+      });
+  
+      if(mobile) return res.status(422).send({status:'failed', errMsg:'Phone number is already registered.'})
+
+  }catch (e) { 
+      console.error(e) 
+      return res.status(500).send({errMsg: 'Internal Server Error'}); 
+  } 
+
+  return res.status(200).send({message: 'Username and Phone Number is available'})
+}
+
+User.register = async function(req,res){
+  let created_at = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kuala_Lumpur',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+  }).format(new Date());
+
+  let data = req.body.data;
+  console.log(data);
+  // let data = JSON.parse(_data.data);
+
+  let id = data.id; //username
+  let name = data.name;
+  let password = data.password;
+
+  let address1 = data.address1;
+  let address2 = data.address2;
+  let address3 = data.address3;
+  let postcode = data.postcode;
+  let city = data.city;
+  let state = data.state;
+
+  let email = data.email;
+  let mobile = data.mobile;
+
+  let outlet_id = data.outlet_id;
+
+  let security_image = data.security_image;
+  let security_phrase = data.security_phrase;
+  
+  if(!id) return res.status(422).send({errMsg: 'Please enter User Id / Username.'});
+  if(!name) return res.status(422).send({errMsg: 'Please enter Name.'});
+  if(!password) return res.status(422).send({errMsg: 'Please enter Password.'});
+
+  if(!address1) return res.status(422).send({errMsg: 'Please enter Address1.'});
+  if(!address2) return res.status(422).send({errMsg: 'Please enter Address2.'});
+  if(!address3) return res.status(422).send({errMsg: 'Please enter Address3.'});
+  if(!postcode) return res.status(422).send({errMsg: 'Please enter Postcode.'});
+  if(!city) return res.status(422).send({errMsg: 'Please enter City.'});
+  if(!state) return res.status(422).send({errMsg: 'Please enter State.'});
+
+  if(!email || !email.includes('@')) return res.status(422).send({errMsg: 'Please enter a correct Email format.'});
+  if(!mobile) return res.status(422).send({errMsg: 'Please enter Phone Number.'});
+
+  if(!outlet_id) return res.status(422).send({errMsg: 'Please enter Outlet ID.'});
+
+  if(!security_image) return res.status(422).send({errMsg: 'Please choose security image.'});
+  if(!security_phrase) return res.status(422).send({errMsg: 'Please choose security phrase.'});
+
+  if(Password.score(password) < 4) {
+    return res.status(422).send({errMsg: 'Password complexity requirement not met.'});
+  }
+
+  let transaction;
+  let user;
+  let phone;
+  let outlet;
+
+  try {
+   
+      user = await db.users.findOne({
+          attributes: {exclude: ['password']},
+          where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', id))
+      });
+  
+      if(user) return res.status(422).send({status:'failed', errMsg:'Username is already taken. Please try another username.'})
+      
+      phone = await db.users.findOne({
+          attributes: {exclude: ['password']},
+          where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('mobile')), sq.fn('lower', mobile))
+      });
+  
+      if(phone) return res.status(422).send({status:'failed', errMsg:'Phone number is already registered.'})
+      
+      outlet = await db.outlets.findOne({
+          where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', outlet_id))
+      });
+  
+      if(outlet === null) return res.status(422).send({status:'failed', errMsg:'Outlet does not exist.'})
+  
+      transaction = await sq.transaction();
+  
+      let hash = bcrypt.hashSync(password, conf.saltRounds);
+
+      console.log({id})
+      await db.user_account.create({
+          user_id: id,
+          outlet_id: outlet_id,
+
+          created_by: id,
+          created_at: created_at,
+          updated_by: id,
+          updated_at: created_at
+      })
+      
+      await db.users.create({
+          id: id,
+          name: name,
+          password: hash,
+          active: true,
+
+          address1: address1,
+          address2: address2,
+          address3: address3,
+          postcode: postcode,
+          city: city,
+          state: state,
+          
+          email: email,
+          mobile: mobile,
+          user_type: 'cashier',
+
+          security_image: security_image,
+          security_phrase: security_phrase,
+
+          created_by: id,
+          created_at: created_at,
+          updated_by: id,
+          updated_at: created_at
+      },{transaction});
+
+      await transaction.commit(); 
+
+  } catch(e) {
+    if(transaction) transaction.rollback(); 
+    console.error(e);
+    return res.status(500).send({status:'failed', errMsg: 'Failed to register.'});
+  }
+
+  return res.send({status:'success', msg:`User ${id} successfully registered.`});
+} 
 
 User.read = async function(req, res){
-    // ... (unchanged)
-}
+  let mobile = req.params.mobile;
+  let user;
 
-User.list = async function(req,res){
+  try{
+      user = await db.users.findOne({
+          where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('mobile')), sq.fn('lower', mobile))
+      });
+  
+      if(!user) return res.status(404).send({status: 'Failed', errMsg: 'User not found.'});
+
+  }catch(e){
+      console.error(e);
+      return res.status(500).send({status: 'Failed', errMsg: 'Failed to find user.'})
+  }
+  
+  return res.send({user});
+} 
+
+User.list = async function(req, res){
   let user_id = req.token.user_id;
   let user_type = req.token.user_type;
   
@@ -75,8 +281,15 @@ User.list = async function(req,res){
   }
 
   let user_listing;
+  let currentUser;
   
   try{
+    // Fetch the current user's details
+    currentUser = await db.users.findOne({
+      where: { id: user_id },
+      attributes: ['name', 'email']
+    });
+
     user_listing = await db.users.findAndCountAll({
       order: order,
       where: where,
@@ -106,7 +319,85 @@ User.list = async function(req,res){
     console.error(e);
     return res.status(500).send({errMsg: 'Failed to get users.'});
   }
-  return res.send({status: 'success', user_listing});
+  
+  return res.send({status: 'success', user_listing, currentUser});
 }
+
+User.profile = async function(req, res){
+  let user_id = req.token.user_id;
+  
+
+  let currentUser;
+  
+  try{
+    // Fetch the current user's details
+    currentUser = await db.users.findOne({
+      where: { id: user_id },
+      attributes: ['name', 'email']
+    });
+
+
+  }catch(e){
+    console.error(e);
+    return res.status(500).send({errMsg: 'Failed to get users.'});
+  }
+  
+  return res.send({status: 'success', currentUser});
+}
+
+User.activate = async function (req, res) {
+  let transaction;
+  let user_id = req.params.id;
+
+  // Ensure the current user is available and has a user_type
+  if (!req.user || !req.user.user_type) {
+      return res.status(403).send({ message: 'User type is missing or not authorized.' });
+  }
+
+  const updateActive = { active: true };
+  const updateDeactive = { active: false };
+
+  if (!user_id) return res.status(422).send({ errMsg: 'Missing User ID!' });
+
+  let isUserIDExist = await db.users.findOne({
+      where: {
+          id: user_id,
+      },
+  });
+
+  if (!isUserIDExist) return res.status(422).send({ errMsg: 'User ID is not valid' });
+
+  if (req.user.user_type === 'admin') {
+      try {
+          transaction = await sq.transaction();
+
+          let user = await db.users.findOne({
+              where: { id: user_id },
+          });
+
+          if (user.active === false) {
+              await db.users.update(updateActive, {
+                  where: { id: user_id },
+                  transaction,
+              });
+          } else {
+              await db.users.update(updateDeactive, {
+                  where: { id: user_id },
+                  transaction,
+              });
+          }
+          await transaction.commit();
+          return res.status(200).send({ message: 'User status updated.' });
+      } catch (e) {
+          if (transaction && !transaction.finished) await transaction.rollback();
+          console.error(e);
+          return res.status(500).send({ errMsg: 'Internal Server Error' });
+      }
+  } else {
+      res.status(403).send({
+          message: 'Access Denied: This route is only accessible to ADMIN only',
+      });
+  }
+};
 
 module.exports = User;

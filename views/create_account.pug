@@ -1,0 +1,46 @@
+extends layout
+
+block styles
+    link(rel='stylesheet', href='/css/table.css')
+    link(rel='stylesheet', href='/css/create_account.css')
+
+    script(src="/js/account_maintenance.js")
+    script(src="/js/create_account.js")
+    script(src="/js/profile.js")
+
+block header
+    .title-bar
+        .title-bar__title
+            h1.block-header Account Maintenance
+            span.breadcrumbs 
+                a(href='/dashboard') Dashboard
+                |  > 
+                a(href='/account_maintenance') Account Maintenance
+                |  > 
+                a(href='/create_account') Create Account
+
+        .title-bar__profile
+            .profile-info
+                span#UserName 
+                br
+                span#UserEmail 
+            .profile-frame
+                img(src='/img/logo/profile.png')
+
+block content
+    .form-container
+        h2 Form
+        form#account-form(action="/web/create", method="POST")
+            .form-group
+                label(for="id") Account ID
+                input#id.form-control(type="text", name="id", required)
+            .form-group
+                label(for="name") Account Name
+                input#name.form-control(type="text", name="name", required)
+            .button-group
+                button.btn.btn-secondary(type="button", id="cancel-btn") Cancel
+                button.btn.btn-primary(type="submit") Create
+
+        .message-container
+            #success-message(style="display:none;") Account creation successful!
+            #error-message(style="display:none;") Error creating account. The ID account already exists.
