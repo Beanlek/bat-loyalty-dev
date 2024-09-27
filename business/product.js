@@ -24,7 +24,8 @@ let created_at = new Intl.DateTimeFormat('en-US', {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-}).format(new Date());
+}).format(new Date()); 
+
 
 Product.insert = async function(req,res){ 
     let transaction; 
@@ -119,6 +120,7 @@ Product.getById = async function(req,res){
 };
 
 Product.update = async function(req,res){ 
+    let user_id = req.user.id;
     let productId = req.params.id; 
     let transaction; 
     let updatedProduct; 
@@ -137,7 +139,9 @@ Product.update = async function(req,res){
         name: req.body.name,
         brand: req.body.brand,
         image: req.body.image, 
-        points: req.body.points
+        points: req.body.points, 
+        updated_at: created_at, 
+        updated_by: user_id
     }
 
     try { 
@@ -165,10 +169,19 @@ Product.update = async function(req,res){
 } 
 
 Product.activate = async function(req,res){ 
+    let user_id = req.user.id;
     let productId = req.params.id;
     let transaction; 
-    const updateActive = { active : true }; 
-    const updateDeactive = { active : false }; 
+    const updateActive = { 
+        active : true,
+        updated_by: user_id, 
+        updated_at: created_at
+     }; 
+    const updateDeactive = { 
+        active : false, 
+        updated_by: user_id, 
+        updated_at: created_at 
+    }; 
 
     if(!productId) return res.status(422).send({errMsg: 'Missing Product ID!'}); 
 

@@ -8,7 +8,10 @@ const logger = require('morgan');
 const helmet = require('helmet');
 const nocache = require('nocache');
 const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
+const YAML = require('yamljs'); 
+const multer = require('multer'); 
+const sharp = require('sharp'); 
+const fs = require('fs');
 
 //Mobile
 const indexRouter = require('./routes/index');
@@ -21,7 +24,9 @@ const apiOutletRouter = require('./routes/api_outlet');
 //Web
 const productRouter = require('./routes/a_product'); 
 const outletRouter = require('./routes/a_outlet');
-const ocrRouter = require('./routes/a_ocr');
+const ocrRouter = require('./routes/a_ocr'); 
+const loyaltyProductRouter = require('./routes/a_loyalty_product'); 
+const s3Router = require('./routes/a_s3');
 
 const app = express();
 
@@ -31,7 +36,9 @@ app.use(express.json());
 //Web Router
 app.use('/a/product', productRouter); 
 app.use('/a/outlet', outletRouter); 
-app.use('/a/ocr', ocrRouter); 
+// app.use('/a/ocr', ocrRouter); 
+app.use('/a/loyalty_product', loyaltyProductRouter);
+app.use('/a/s3', s3Router); 
 
 // app.use('/', indexRouter); 
 //Mobile Router 
@@ -61,6 +68,24 @@ app.use(function(err, req, res, next) {
     return res.redirect('/login');
     }
     
+    if(err instanceof multer.MulterError){ 
+        if(err.code === "LIMIT_FILE_SIZE"){ 
+            return res.status(400).json({ 
+                message: "File size is too large",
+            })
+        }  
+        if(err.code === "LIMIT_FILE_COUNT") { 
+            return res.status(400).json({ 
+                message: "File limit reached",
+            })
+        } 
+        if(err.code === "LIMIT_UNEXPECTED_FILE") { 
+            return res.status(400).json({ 
+                message: "File must be an image",
+            })
+        } 
+    }
+
     console.error(err);
     if (!err.filename || !err.line || !err.column) {
     console.log('New route introduced and its permission is not setup!')

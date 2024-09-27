@@ -1,90 +1,118 @@
-const env = process.env.NODE_ENV || 'dev';
-const conf = require('../config/config.json')[env];
-const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcrypt');
-const dayjs = require('dayjs');
-const {Parser} = require('json2csv');
-const jwtAuth = require('../common/jwtAuth.js');
-const Password = require('../common/password.js');
-const generator = require('generate-password');
-const db = require('../model/db.js');
-const escapeHtml = require('escape-html');
-const Op = db.Sequelize.Op;
-const sq = db.sequelize;
-const df = 'YYYY-MM-DD';
-const limit = 20;
-const Tesseract = require('tesseract.js');
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+// const env = process.env.NODE_ENV || 'dev';
+// const conf = require('../config/config.json')[env];
+// const express = require('express');
+// const router = express.Router();
+// const bcrypt = require('bcrypt');
+// const dayjs = require('dayjs');
+// const {Parser} = require('json2csv');
+// const jwtAuth = require('../common/jwtAuth.js');
+// const Password = require('../common/password.js');
+// const generator = require('generate-password');
+// const db = require('../model/db.js');
+// const escapeHtml = require('escape-html');
+// const Op = db.Sequelize.Op;
+// const sq = db.sequelize;
+// const df = 'YYYY-MM-DD';
+// const limit = 20;
+// const Tesseract = require('tesseract.js'); 
+// const sharp = require('sharp'); 
+// const multer = require('multer');
+// const fs = require('fs');
+// const path = require('path'); 
 
-let Ocr = {};
+// let Ocr = {}; 
 
-// Configure multer for file storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Adjust this to your desired upload directory
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
+// Ocr.calculatePoints = async function (req, res){ 
+//   let name = name; 
+//   let points = points; 
+// } 
 
-const upload = multer({ storage: storage });
+// Ocr.extractTexts = async function (req, res){ 
 
-Ocr.ocrUpload = async function (req, res) {
-  let { user_id, role, allowed_sites } = req.token;
 
-  if (!req.file) {
-      return res.status(422).send({ errMsg: 'Please upload an image file' });
-  }
 
-  // Validate file type (ensure it's an image)
-  if (!req.file.mimetype.startsWith('image/')) {
-      return res.status(422).send({ errMsg: 'Invalid file type, please upload images only' });
-  }
+// }
 
-  try {
-      // Process the image with OCR
-      const imagePath = req.file.path;
-      const text = await extractTextFromImage(imagePath);
+// // Define the threshold value (0-255)
+// const thresholdValue = 150;
 
-      words = text.split(/\s+/);
+// // Can change it by reading the data from database 
 
-      // Trim each word and filter to get words with exactly 8 characters
-      selectedWords = words.map(word => word.trim()).filter(word => word.length === 12);
-      selectedWordsString = selectedWords.join(', ');
+// // loyalty_products = db.products.findAll({ 
+// //   where: {name: name, points: points}
+// // }) 
 
-      // const result = getWords(text);
+// BAT_products = [
+//     { name: 'Dunhill', point: 10 },
+//     { name: 'Lucky Strike', point: 20 },
+//     { name: 'Pall Mall', point: 30 },
+//     { name: 'Rothmans', point: 40 },
+//     { name: 'Gardenia', point: 50 }, 
+//     { name: 'Dutch Lady', point: 100 }
+// ];
 
-      // console.log(result)
+// // Initial point
+// collected_point = 0
 
-      return res.send({ status: 'success', ocrText: text });
-  } catch (error) {
-      console.error('Error processing image:', error);
-      return res.status(500).send({ errMsg: 'Failed to process the image' });
-  }
-};
+// // Convert image to grayscale, then apply thresholding
+// sharp('images/OcrTest6.jpeg')
+//   .grayscale()
+//   .raw()
+//   .toBuffer({ resolveWithObject: true })
+//   .then(({ data, info }) => {
+//     for (let i = 0; i < data.length; i++) {
+//       data[i] = data[i] < thresholdValue ? 0 : 255;
+//     }
+//     return sharp(data, {
+//       raw: {
+//         width: info.width,
+//         height: info.height,
+//         channels: 1,
+//       },
+//     })
+//       .toFile(`images/OcrTest6-thresholded.jpeg`);
+//   })
+//   .then(() => {
+//     console.log('Thresholding complete. Output saved as output_thresholded.jpg');
+//   })
+//   .catch(err => {
+//     console.error('Error processing image:', err);
+//   });
 
-async function extractTextFromImage(imagePath) {
-  try {
-      const { data: { text } } = await Tesseract.recognize(imagePath);
-      return text;
-  } catch (error) {
-      console.error('Error extracting text from image:', error);
-      return '';
-  }
-}
+// // Extract text from processed image
+// Tesseract.recognize(
+// 'images/OcrTest6-thresholded.jpeg',
+// 'eng',
+// {
+//     logger: m => console.log(m)
+// }
+// ).then(({ data: { text } }) => {
+// console.log(text);
 
-async function getWords(text) {
-  // Split the text into an array of words
-  let words = text.split(/\s+/);
+// // Loop each product to compare with extracted text
+// BAT_products.forEach(function(prod) {
+//     if(searchWord(text, prod.name))
+//         collected_point=collected_point+prod.point
+// });
 
-  // Trim each word and filter to get words with exactly 8 characters
-  let selectedWords = words.map(word => word.trim()).filter(word => word.length === 12);
+// // Total point
+// console.log(collected_point);
+// });
 
-  return selectedWords;
-}
+// // Find product from extracted text
+// function searchWord(text, word) {
+//     // Normalize both text and word to lowercase for case-insensitive search
+//     const normalizedText = text.toLowerCase();
+//     const normalizedWord = word.toLowerCase();
 
-module.exports = Ocr;
+//     // Search for the word in the text
+//     const position = normalizedText.indexOf(normalizedWord);
+
+//     if (position !== -1) {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// } 
+
+// module.exports = Ocr; 

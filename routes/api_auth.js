@@ -11,6 +11,7 @@ const sq = db.sequelize;
 
 const msgMissingParam = 'Please enter username and password';
 const msgLoginFailed = 'Invalid username or password';
+const msgUserNotActive = 'The user is not active';
 const msgSignFailed = 'Failed to sign token';
 const msgResetFailed ='Username not exist!'
 const msgUserFound = 'Reset password link sent successfully!'
@@ -20,7 +21,7 @@ router.post('/app/login', async (req, res) => {
     let token;
     let expires_in = '36h';
     let token_expiry_time;
-    let allotment_date;
+    let allotment_date; 
 
     var {mobile, password, device_id} = req.body;
 
@@ -37,6 +38,10 @@ router.post('/app/login', async (req, res) => {
 
     if(!user){
         return res.status(422).send({errMsg: msgLoginFailed});
+    } 
+
+    if(user.active !== true){ 
+        return res.status(422).send({errMsg: msgUserNotActive});
     }
 
     let valid = await bcrypt.compare(password, user.password);

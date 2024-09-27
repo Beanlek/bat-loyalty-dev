@@ -30,6 +30,8 @@ db.users = require('./users.js')(sequelize, Sequelize);
 db.products = require('./products.js')(sequelize, Sequelize); 
 db.outlets = require('./outlets.js')(sequelize, Sequelize); 
 db.accounts = require('./accounts.js')(sequelize, Sequelize); 
+db.user_accounts = require('./user_account.js')(sequelize,Sequelize); 
+db.receipt_images = require('./receipt_image.js')(sequelize, Sequelize); 
 
 sequelize.sync();
 

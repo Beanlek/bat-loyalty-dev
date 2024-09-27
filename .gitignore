@@ -12,9 +12,14 @@
 /coverage
 
 # production
-/build
+/build 
+
+eng.traineddata 
+images/
+
 
 # misc
+.env
 .DS_Store
 .env.local
 .env.development.local
