@@ -59,7 +59,6 @@ router.post('/uploadReceipt', apiAuth.checkToken, upload.single('file'), async (
 
     let {user_id} = req.token; 
     const file = req.file; 
-    // const uuid = req.body.uuid; 
 
     if (!req.file) {
         return res.status(400).send({status: "No file uploaded"});
@@ -115,6 +114,7 @@ router.post('/uploadReceipt', apiAuth.checkToken, upload.single('file'), async (
 
                 transaction = await sq.transaction();
 
+                //image_points is set to 0 for update in ocr later
                 const imageDB = await db.receipt_images.create({ 
                     id: uuidv4(), 
                     user_id :user_id, 
@@ -126,8 +126,8 @@ router.post('/uploadReceipt', apiAuth.checkToken, upload.single('file'), async (
                     created_at: created_at, 
                     updated_by: user_id, 
                     updated_at: created_at, 
-                    status: req.body.status, 
-                    image_points: req.body.image_points
+                    status: 'In Process', 
+                    image_points: 0
                 },{transaction}); 
     
                 await transaction.commit(); 
