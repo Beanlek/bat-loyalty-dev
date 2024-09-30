@@ -78,6 +78,28 @@ User.isExistPhoneUsername = async function(req, res){
     return res.status(200).send({message: 'Username and Phone Number is available'})
 }
 
+User.isExistUsername = async function(req, res){ 
+    let user_id = req.body.user_id;
+
+    if (!user_id) return res.status(422).send({errMsg: 'Missing payload'}); 
+
+    try {    
+
+        let name = await db.users.findOne({
+            attributes: {exclude: ['password']},
+            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', user_id))
+        });
+    
+        if(!name) return res.status(422).send({status:'failed', errMsg:'Username does not exist.'})
+
+    }catch (e) { 
+        console.error(e) 
+        return res.status(500).send({errMsg: 'Internal Server Error'}); 
+    } 
+
+    return res.status(200).send({message: 'Username exist'})
+}
+
 User.register = async function(req,res){
     let created_at = new Intl.DateTimeFormat('en-US', {
         timeZone: 'Asia/Kuala_Lumpur',
