@@ -2,16 +2,28 @@ extends layout
 
 block styles
     link(rel='stylesheet', href='/css/dashboard.css')
-
+    link(rel='stylesheet', href='/css/table.css')
+    script(src="/js/profile.js")
     script(src="/js/dashboard.js")
 
 block header 
     .title-bar
         .title-bar__title
-            h1 Welcome back #{user_id}
-            span 27 Jun 2024
+            h1 Welcome back   
+                span#headerUserName 
+            span#currentDateWrapper
+                i.bi.bi-calendar3
+                span#currentDate
         .title-bar__profile
-            span #{user_id}
+            .profile-info
+                span#UserName
+                br
+                span#UserEmail
+            .profile-frame
+                img(src='/img/logo/profile.png')
+
+        
+
 
 block content
     .dashboard

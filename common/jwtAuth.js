@@ -28,20 +28,28 @@ Auth.checkTokenForLogin = async function(req, res, next){
 
 Auth.checkToken = async function(req, res, next){
   let token = req.cookies[conf.cookie.tokenName];
-  if(!token) return res.redirect('/login');
-  try{
+  
+  if (!token) return res.redirect('/login');
+  
+  try {
+    // Verify token
     let decoded = await jwt.verify(token, conf.cookie.secret);
-    let user = await db.users.findOne({where: {id: {[Op.eq]: decoded.user_id}}});
+    
+    // Fetch user from database
+    let user = await db.users.findOne({
+      where: { id: decoded.user_id },
+      attributes: ['id', 'user_type', 'session_id'] // Ensure these attributes are fetched
+    });
 
-    if(!user) throw `User ${decoded.user_id} not found.`;
-    if(user.session_id != decoded.session_id) throw `User ${decoded.user_id} session id not matching.`;
-
+    if (!user) throw new Error(`User ${decoded.user_id} not found.`);
+    if (user.session_id !== decoded.session_id) throw new Error(`User ${decoded.user_id} session id not matching.`);
+    
+    // Attach user to req
+    req.user = user;
     req.token = decoded;
-    req.user = user; 
-
+    
     return next();
-
-  }catch(e){
+  } catch (e) {
     console.error(e);
     return res.redirect('/login');
   }

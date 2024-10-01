@@ -2,27 +2,39 @@ extends layout
 
 block styles
     link(rel='stylesheet', href='/css/table.css')
-    script(src="/js/account_maintenence.js")
+    
+    script(src="/js/account_maintenance.js")
+    script(src="/js/profile.js")
+    script(src="/js/create_account.js")
 
 block header
     .title-bar
         .title-bar__title
             h1.block-header Account Maintenance
-            //- span#userName User Name: <span id="userName"></span>
-            span.breadcrumbs Dashboard > Account Maintennace
+            span.breadcrumbs 
+                a(href='/dashboard') Dashboard
+                |  > 
+                a(href='/account_maintenance') Account Maintenance
         .title-bar__profile
-            span User ID: #{user_id}
+            .profile-info
+                span#UserName
+                br
+                span#UserEmail
+            .profile-frame
+                img(src='/img/logo/profile.png')
+
 block content
     .action
         .action__query
             .searchbar
                 form.bar(action="")
-                    input.search(type="search" placeholder="Search by ID, name, or email")
+                    i.fa.fa-search.search-icon
+                    input.search(type="search" placeholder="Search by ID or Name")
             .filter-type
-                select#user_type
+                select#account_status
                     option(value="all") All
                     option(value="active") Active
-                    option(value="deactive") Diective
+                    option(value="inactive") Inactive
             .filter-time
                 select#time
                     option(value="any_time") Any Time
@@ -32,6 +44,8 @@ block content
                     option(value="year-to-date") Year-to-date
                     option(value="custom-date") Custom-date
                     option(value="custom-range") Custom-range
+            .create-account
+                button#create-account-btn(type="button") Create Account
         .action__pagination
             .paginator
                 span Page
@@ -54,6 +68,14 @@ block content
                 th Outlet
         tbody
     .loading-indicator Loading...
+
+    // Custom confirmation modal
+    div#confirmationModal.modal
+        div.modal-content
+            p.modal-message Are you sure you want to change the status of this account?
+            div.modal-actions
+                button#confirmBtn(type='button') Confirm
+                button#cancelBtn(type='button') Cancel
 
     script.
         var currentUserId = '#{user_id}';

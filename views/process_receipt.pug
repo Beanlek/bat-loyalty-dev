@@ -1,15 +1,22 @@
 extends layout
 
 block styles
-    
+    link(rel='stylesheet', href='/css/table.css')
+    script(src="/js/user_maintenance.js")
+    script(src="/js/profile.js")
 
 block header
     .title-bar
         .title-bar__title
-            h1 #{page}
+            h1 Process Receipt 
             span.breadcrumbs Dashboard > #{page}
         .title-bar__profile
-            span #{user_id}
+            .profile-info
+                span#UserName
+                br
+                span#UserEmail
+            .profile-frame
+                img(src='/img/logo/profile.png')
     
 
 block content
@@ -17,7 +24,8 @@ block content
         .action__query
             .searchbar
                 form.bar(action="")
-                    input.search(type="search" placeholder="search")
+                    i.fa.fa-search.search-icon
+                    input.search(type="search")
             .filter-type
                 select#user_type
                     option( value="all") All
@@ -34,9 +42,9 @@ block content
                     option( value="custom-range") Custom-range
         .action__pagination
             .paginator
-                span Page 
-                input.current-page
-                span of 100
+                span Page
+                input.current-page(type="number" min="1")
+                span.total-pages of 1
 
         .stepper
             button.prev
@@ -45,16 +53,7 @@ block content
                 i(class="fa-solid fa-chevron-right")
 
     
-    table.data-list
-        thead
-            tr
-                th No.
-                th Receipt 
-                th Id
-                th Status
-                th Image Token
-                th Process
-        tbody 
+  
            
 
             

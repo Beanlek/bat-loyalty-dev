@@ -3,22 +3,32 @@ extends layout
 block styles
     link(rel='stylesheet', href='/css/table.css')
     script(src="/js/user_maintenance.js")
+    script(src="/js/profile.js")
 
 block header
     .title-bar
         .title-bar__title
             h1.block-header User Maintenance
-            //- span#userName User Name: <span id="userName"></span>
-            span.breadcrumbs Dashboard > Users Maintenance
+            span.breadcrumbs 
+                a(href='/dashboard') Dashboard
+                |  > 
+                a(href='/user_maintenance') User Maintenance
         .title-bar__profile
-            span User ID: #{user_id}
+            .profile-info
+                span#UserName
+                br
+                span#UserEmail
+            .profile-frame
+                img(src='/img/logo/profile.png')
+              
 
 block content
     .action
         .action__query
             .searchbar
                 form.bar(action="")
-                    input.search(type="search" placeholder="Search by ID, name, or email")
+                    i.fa.fa-search.search-icon
+                    input.search(type="search")
             .filter-type
                 select#user_type
                     option(value="all") All
@@ -58,6 +68,14 @@ block content
                 th Outlet
         tbody
     .loading-indicator Loading...
+
+    // Custom confirmation modal
+    div#confirmationModal.modal
+        div.modal-content
+            p.modal-message Are you sure you want to deactivate this user account?
+            div.modal-actions
+                button#confirmBtn(type='button') Confirm
+                button#cancelBtn(type='button') Cancel
 
     script.
         var currentUserId = '#{user_id}';

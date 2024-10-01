@@ -42,4 +42,9 @@ router.put('/web/update/:id', apiAuth.checkToken, async(req, res) => {
     biz.products.update(req, res); 
 })
 
+//change to jwtAuth.checkTokenForApi for portal later
+router.put('/web/activate/:id', apiAuth.checkToken, async(req, res) => { 
+    biz.products.activate(req, res); 
+})
+
 module.exports = router; 

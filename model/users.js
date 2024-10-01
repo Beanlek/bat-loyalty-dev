@@ -53,10 +53,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: true
       },
-      points:{
-        type: Sequelize.TEXT,
-        allowNull: true
-      },
       last_login_at:{
         type: Sequelize.DATE,
         allowNull: true

@@ -22,9 +22,8 @@ Auth.checkToken = async function(req, res, next){
     let user = await db.users.findOne({where: {id: {[Op.eq]: decoded.user_id}}});
     
     if(!user) throw `User ${decoded.user_id} not found.`;
-    console.log(user.session_id)
-    console.log(decoded.session_id)
-    if(user.session_id != decoded.session_id) throw `User ${decoded.user_id} session id not matching.`;
+    if(user.session_id != decoded.session_id) throw `User ${decoded.user_id} session id not matching.`; 
+    if(user.active !== true) throw `User ${id} is not active`;
 
     req.token = decoded; 
     req.user = user; 

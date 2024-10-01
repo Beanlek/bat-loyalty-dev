@@ -147,4 +147,8 @@ button:hover {
     color: #555; /* Example text color */
 }
 
-  
+#headerUserName {
+    text-transform: uppercase;
+    font-size: 24px; /* Adjust the size as necessary */
+  }
+    

@@ -1,12 +1,36 @@
 $(async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const accountId = urlParams.get('accountId');
-    const accountName = decodeURIComponent(urlParams.get('accountName'));
+    let accountId = urlParams.get('accountId');
+    let accountName = decodeURIComponent(urlParams.get('accountName'));
+    let outletId = urlParams.get('outletId'); // Assuming outletId comes from the URL
+
+    // Retrieve account details from localStorage if not provided in URL
+    if (!accountId || accountId === 'null' || !accountName || accountName === 'null') {
+        accountId = localStorage.getItem('accountId');
+        accountName = localStorage.getItem('accountName');
+    }
+
+    console.log('accountId:', accountId);
+    console.log('accountName:', accountName);
+    console.log('outletId:', outletId); // Log the outletId for debugging
 
     $('#userName').text(accountName); // Display the accountName
+    $('#outletBreadcrumb').attr('href', `/outlets?accountId=${accountId}&accountName=${encodeURIComponent(accountName)}`);
 
     let allOutlets = [];
     let userOutlets = [];
+
+    // Update the Create Outlet button click event to include outletId in the URL
+    $('#create-outlet-btn').on('click', () => {
+        let createOutletUrl = `/create_outlet?accountId=${accountId}&accountName=${encodeURIComponent(accountName)}`;
+        
+        // Include outletId in the URL if it exists
+        if (outletId) {
+            createOutletUrl += `&outletId=${outletId}`;
+        }
+
+        window.location.href = createOutletUrl; // Redirect to the create outlet page with all parameters
+    });
 
     async function fetchOutlets() {
         try {
@@ -32,11 +56,11 @@ $(async () => {
     function updateOutletTable(outlets) {
         const $tbody = $('.data-list tbody');
         $tbody.empty();
-
+    
         outlets.forEach((outlet, index) => {
             let billingAddress = formatBillingAddress(outlet);
-            let outletLink = `<a href="/cashier?OutletId=${outlet.id}" class="view-link">View</a>`;
-
+            let outletLink = `<a href="/cashier?OutletId=${outlet.id}&accountId=${accountId}&accountName=${encodeURIComponent(accountName)}" class="view-link">View</a>`;
+    
             let row = `
                 <tr class="data">
                     <td>${index + 1}</td>
@@ -48,10 +72,11 @@ $(async () => {
                     <td>${outlet.created_by || ''}</td>
                     <td>${outletLink}</td>
                 </tr>`;
-
+    
             $tbody.append(row);
         });
     }
+    
 
     function formatBillingAddress(outlet) {
         let addressParts = [

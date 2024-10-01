@@ -1,10 +1,7 @@
 $(async () => {
-    let user_type = new Dropdown({ id: '#user_type' });
-    let time = new Dropdown({ id: '#time' });
-
     let allUsers = [];
     let allOutlets = [];
-    let allUserAccount = []; // Assuming this is where you store user account data
+    let allUserAccount = []; 
     let currentPage = 1;
     const usersPerPage = 10;
     let totalPages = 1;
@@ -37,7 +34,7 @@ $(async () => {
     async function fetchUserAccounts() {
         try {
             const response = await $.get("/a/user_account/web/list");
-            allUserAccount = response; // Assuming this is where you store user account data
+            allUserAccount = response;
             console.log('Fetched user accounts:', allUserAccount);
         } catch (error) {
             console.error('Error fetching user accounts:', error);
@@ -75,20 +72,22 @@ $(async () => {
 
     function filterAndUpdateTable() {
         let filteredUsers = allUsers;
-
+    
         const selectedUserType = $('#user_type').val();
         if (selectedUserType !== 'all') {
-            filteredUsers = filteredUsers.filter(user => user.user_type === selectedUserType);
+            filteredUsers = filteredUsers.filter(user => {
+                return user && user.user_type && user.user_type === selectedUserType;
+            });
         }
-
+    
         const selectedTime = $('#time').val();
         filteredUsers = filterUsersByTime(filteredUsers, selectedTime);
-
+    
         const searchQuery = $('input.search').val().toLowerCase();
         if (searchQuery) {
             filteredUsers = searchUsers(filteredUsers, searchQuery);
         }
-
+    
         totalPages = Math.ceil(filteredUsers.length / usersPerPage);
         updateTable(filteredUsers);
         updatePagination();
@@ -126,36 +125,65 @@ $(async () => {
     function updateTable(users) {
         const $tbody = $('.data-list tbody');
         $tbody.empty();
-    
+
         const start = (currentPage - 1) * usersPerPage;
         const end = start + usersPerPage;
         const paginatedUsers = users.slice(start, end);
-    
+
         paginatedUsers.forEach((user, index) => {
             let billingAddress = formatBillingAddress(user);
-    
-            // Generate outlet link based on user's ID
+
             let outletLink = `<a href="/outlet?userId=${user.id}&userName=${encodeURIComponent(user.name)}" class="view-link">View</a>`;
-    
-            let row =
-                `<tr class="data">
+
+            let row = `
+                <tr class="data">
                     <td>${start + index + 1}</td>
                     <td>${user.id || ''}</td>
                     <td>${user.name || ''}</td>
                     <td>${user.email || ''}</td>
                     <td>${billingAddress}</td>
                     <td>${user.last_login_at || ''}</td>
-                    <td>${user.active ? 'Active' : 'Inactive'}</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" class="toggle-status" data-user-id="${user.id}" ${user.active ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    </td>
                     <td>${user.created_at || ''}</td>
                     <td>${user.created_by || ''}</td>
                     <td>${outletLink}</td>
                 </tr>`;
-    
+
             $tbody.append(row);
         });
-    
+
         updatePagination();
-    }    
+
+    }
+
+    async function updateUserStatus(userId, isActive) {
+        try {
+            const response = await $.ajax({
+                url: `/a/user/web/activate/${userId}`,
+                method: 'PUT',
+                data: { active: isActive }, 
+                success: function(data) {
+                    console.log('User status updated:', data);
+                    // Optionally show a success message or toast
+                },
+                error: function(xhr) {
+                    console.error('Error updating user status:', xhr.responseText);
+                    // Revert the checkbox if the request fails
+                    $(`input[data-user-id="${userId}"]`).prop('checked', !isActive);
+                    // Optionally show an error message to the user
+                }
+            });
+        } catch (error) {
+            console.error('Error occurred while updating user status:', error);
+            // Revert the checkbox if the update fails
+            $(`input[data-user-id="${userId}"]`).prop('checked', !isActive);
+        }
+    }
 
     function formatBillingAddress(user) {
         let addressParts = [
@@ -193,5 +221,35 @@ $(async () => {
             $('.current-page').val(currentPage);
         }
     }
+    // Custom confirmation modal logic
+    function showConfirmationModal(message, onConfirm) {
+        $('#confirmationModal .modal-message').text(message);
+        $('#confirmationModal').fadeIn().css('display', 'flex');  // Show the modal with flexbox for centering
 
+        $('#confirmBtn').off('click').on('click', function () {
+            $('#confirmationModal').fadeOut();
+            onConfirm(true);
+        });
+
+        $('#cancelBtn').off('click').on('click', function () {
+            $('#confirmationModal').fadeOut();
+            onConfirm(false);
+        });
+    }
+    $(document).on('change', '.toggle-status', function () {
+        const userId = $(this).data('user-id');
+        const isActive = $(this).is(':checked');
+
+        const confirmationMessage = isActive
+            ? 'Are you sure you want to activate this user account?'
+            : 'Are you sure you want to deactivate this user account?';
+
+        showConfirmationModal(confirmationMessage, function (confirmed) {
+            if (confirmed) {
+                updateUserStatus(userId, isActive);
+            } else {
+                $(`input[data-user-id="${userId}"]`).prop('checked', !isActive);
+            }
+        });
+    });
 });
