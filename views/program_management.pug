@@ -2,15 +2,21 @@ extends layout
 
 block styles
     link(rel='stylesheet', href='/css/user_maintenance.css')
-    script(src="/js/user_maintenance.js")
+    link(rel='stylesheet', href='/css/table.css')
+    script(src="/js/profile.js")
 
 block header
     .title-bar
         .title-bar__title
-            h1 #{page}
+            h1 Program Management
             span.breadcrumbs Dashboard > #{page}
         .title-bar__profile
-            span #{user_id}
+            .profile-info
+                span#UserName
+                br
+                span#UserEmail
+            .profile-frame
+                img(src='/img/logo/profile.png')
     
 
 block content

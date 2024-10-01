@@ -1,10 +1,13 @@
 $(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const outletId = urlParams.get('OutletId');
-    const outletName = decodeURIComponent(urlParams.get('outletName'));
+    const accountId = urlParams.get('accountId');
+    const accountName = decodeURIComponent(urlParams.get('accountName'));
 
-    $('#userName').text(outletName); // Assuming you have an element with id="userName" to display the outletName
-
+    $('#cashierBreadcrumb').attr('href', `/cashier?OutletId=${outletId}&accountId=${accountId}&accountName=${encodeURIComponent(accountName)}`);
+    $('#outletBreadcrumb').attr('href', `/outlets?accountId=${accountId}&accountName=${encodeURIComponent(accountName)}`);
+    
+    
     let allUsers = [];
     let allUserAccounts = [];
     let cashiers = [];
@@ -14,12 +17,11 @@ $(async () => {
             const response = await $.get("/a/user/web/list");
             allUsers = response.user_listing.rows;
             console.log('Fetched users:', allUsers);
-            
         } catch (error) {
             console.error('Error fetching users:', error);
         }
     }
-    
+
     async function fetchUserAccounts() {
         try {
             const response = await $.get("/a/user_account/web/list");

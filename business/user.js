@@ -48,36 +48,6 @@ User.getOutletRegister = async function(req, res){
     }
 }
 
-User.getOutletRegister = async function(req, res){ 
-    let companyId = req.body.id; 
-    let postcode = req.body.postcode; 
-
-    if (!companyId) return res.status(422).send({errMsg: 'Missing payload: companyId'}); 
-    if (!postcode) return res.status(422).send({errMsg: 'Missing payload: postcode'}); 
-
-    let outletList; 
-
-    try { 
-        outletList = await db.outlets.findAll({ 
-            attributes: [ 'id', 'name', 'address1', 'address2', 'address3', 'postcode', 'city', 'state' ],
-            where : { account_id : companyId, postcode: postcode }
-        }) 
-
-        if(!outletList) return res.status(422).send({errMsg: 'No Outlets for the ID ${companyId} and Postcode ${postcode} is found'}); 
-
-        res.send({
-          status: 'success',
-          data: {
-            count: outletList.length,
-            rows: outletList
-          }
-        }); 
-    }catch (e) { 
-        console.error(e); 
-        return res.status(500).send({errMsg: 'Internal Server Error'}); 
-    }
-}
-
 User.isExistPhoneUsername = async function(req, res){ 
     let name = req.body.name; 
     let mobile =  req.body.mobile; 
@@ -88,7 +58,7 @@ User.isExistPhoneUsername = async function(req, res){
 
         name = await db.users.findOne({
             attributes: {exclude: ['password']},
-            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('name')), sq.fn('lower', name))
+            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', name))
         });
     
         if(name) return res.status(422).send({status:'failed', errMsg:'Username is already taken. Please try another username.'})
@@ -106,6 +76,28 @@ User.isExistPhoneUsername = async function(req, res){
     } 
 
     return res.status(200).send({message: 'Username and Phone Number is available'})
+}
+
+User.isExistUsername = async function(req, res){ 
+    let user_id = req.body.user_id;
+
+    if (!user_id) return res.status(422).send({errMsg: 'Missing payload'}); 
+
+    try {    
+
+        let name = await db.users.findOne({
+            attributes: {exclude: ['password']},
+            where: db.Sequelize.where(db.Sequelize.fn('lower', db.Sequelize.col('id')), sq.fn('lower', user_id))
+        });
+    
+        if(!name) return res.status(422).send({status:'failed', errMsg:'Username does not exist.'})
+
+    }catch (e) { 
+        console.error(e) 
+        return res.status(500).send({errMsg: 'Internal Server Error'}); 
+    } 
+
+    return res.status(200).send({message: 'Username exist'})
 }
 
 User.register = async function(req,res){
@@ -135,6 +127,11 @@ User.register = async function(req,res){
 
     let email = data.email;
     let mobile = data.mobile;
+
+    let outlet_id = data.outlet_id;
+
+    let security_image = data.security_image;
+    let security_phrase = data.security_phrase;
     
     if(!id) return res.status(422).send({errMsg: 'Please enter User Id / Username.'});
     if(!name) return res.status(422).send({errMsg: 'Please enter Name.'});
@@ -334,6 +331,8 @@ User.read = async function(req, res){
           inner join outlets o 
           on ua.outlet_id = o.id
           where ua.user_id = '${user.id}'
+          order by ua.active desc,
+          case when ua.active then ua.outlet_id else ua.outlet_id end asc
         `
         
         outlets = await sq.query(qOutlet, {
@@ -441,5 +440,82 @@ User.list = async function(req,res){
   }
   return res.send({status: 'success', user_listing});
 }
+
+User.profile = async function(req, res){
+  let user_id = req.token.user_id;
+  
+
+  let currentUser;
+  
+  try{
+    // Fetch the current user's details
+    currentUser = await db.users.findOne({
+      where: { id: user_id },
+      attributes: ['name', 'email']
+    });
+
+
+  }catch(e){
+    console.error(e);
+    return res.status(500).send({errMsg: 'Failed to get users.'});
+  }
+  
+  return res.send({status: 'success', currentUser});
+}
+
+User.activate = async function (req, res) {
+  let transaction;
+  let user_id = req.params.id;
+
+  // Ensure the current user is available and has a user_type
+  if (!req.user || !req.user.user_type) {
+      return res.status(403).send({ message: 'User type is missing or not authorized.' });
+  }
+
+  const updateActive = { active: true };
+  const updateDeactive = { active: false };
+
+  if (!user_id) return res.status(422).send({ errMsg: 'Missing User ID!' });
+
+  let isUserIDExist = await db.users.findOne({
+      where: {
+          id: user_id,
+      },
+  });
+
+  if (!isUserIDExist) return res.status(422).send({ errMsg: 'User ID is not valid' });
+
+  if (req.user.user_type === 'admin') {
+      try {
+          transaction = await sq.transaction();
+
+          let user = await db.users.findOne({
+              where: { id: user_id },
+          });
+
+          if (user.active === false) {
+              await db.users.update(updateActive, {
+                  where: { id: user_id },
+                  transaction,
+              });
+          } else {
+              await db.users.update(updateDeactive, {
+                  where: { id: user_id },
+                  transaction,
+              });
+          }
+          await transaction.commit();
+          return res.status(200).send({ message: 'User status updated.' });
+      } catch (e) {
+          if (transaction && !transaction.finished) await transaction.rollback();
+          console.error(e);
+          return res.status(500).send({ errMsg: 'Internal Server Error' });
+      }
+  } else {
+      res.status(403).send({
+          message: 'Access Denied: This route is only accessible to ADMIN only',
+      });
+  }
+};
 
 module.exports = User;

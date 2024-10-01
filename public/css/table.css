@@ -1,93 +1,410 @@
-/* user_maintenance.css */
+/* Breadcrumbs */
+.breadcrumbs a {
+    color: black;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out; /* Smooth transition */
+}
+
+.breadcrumbs a:hover {
+    color: #007BFF; /* Change to blue on hover, for example */
+    text-decoration: underline;
+}
 
 /* General styles */
 .action {
     margin-bottom: 20px;
+    margin-left: 2px;
 }
 
-/* Search bar */
 .searchbar {
-    margin-bottom: 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.searchbar input[type="search"] {
-    width: 250px;
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.searchbar .search-icon {
+    position: absolute;
+    left: 10px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888; /* Icon color */
+    font-size: 18px;
 }
 
-/* Filter section */
-.filter-type,
-.filter-time {
-    margin-bottom: 10px;
-}
-
-.filter-type select,
+.searchbar input[type=search], 
+.filter-type select, 
 .filter-time select {
-    width: 150px;
+    background:linear-gradient(to right, #becbf4, #e1e7ff);
+    border-radius: 20px;
+    border: none;
+    width: 100%;
     padding: 8px;
     font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    height: 36px;
+}
+
+.searchbar input[type=search] {
+    width: 500px; /* Customize search bar width */
+    padding-left: 30px; /* Adjust padding to ensure text starts after the icon */
+}
+
+/* Filter box dimensions */
+.filter-type, .filter-time {
+    width: 150px;
 }
 
 /* Pagination */
-.paginator {
-    margin-bottom: 10px;
-}
-
-.paginator input[type="number"] {
-    width: 60px;
+.paginator input[type=number] {
+    width: 35px;
     padding: 6px;
     font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    height: 25px; /* Match the height with the search bar */
+    text-align: center;
+    border-radius: 10px;
+    border: 2px solid rgb(118, 125, 211);
+}
+.paginator span {
+    margin-right: 8px; /* Space between "Page" and the paginator box */
+}
+.paginator .total-pages {
+    margin-left: 8px; /* Space between the paginator box and "of" */
 }
 
-/* Table styles */
+/* Table */
+/* Add spacing between block content and table */
 .data-list {
     width: 100%;
-    border-collapse: collapse;
+    padding: 12px;
+    margin-top: 20px; /* Add space above the table */
+    border-collapse: collapse; /* Ensure borders collapse */
 }
 
-.data-list th,
-.data-list td {
-    border: 1px solid #ddd;
+.data-list th, .data-list td {
+    border: none; /* Remove all borders */
     padding: 8px;
     text-align: left;
 }
 
 .data-list th {
-    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;  /* Ensure the header has no background */
+}
+
+.data-list tr {
+    border-bottom: 1px solid #ddd; /* Only add a bottom border to each row */
 }
 
 /* Loading indicator */
 .loading-indicator {
-    display: none; /* Initially hidden */
-    font-size: 14px;
-    color: #555;
+    display: none;
 }
 
 /* Outlet link style */
 .data-list td a {
-    color: #007bff;
+    color: blue;
     text-decoration: underline;
 }
 
 /* Profile section */
 .title-bar__profile {
+    display: flex;
+    align-items: center;
     float: right;
-    margin-top: 10px;
-    margin-right: 20px;
+    margin: 10px 20px 0 0;
     font-size: 14px;
 }
 
-/* Add this to /css/table.css */
-#userName {
-    font-weight: bold;
-    color: #2c3e50;
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align items to the end of the flex container */
+    text-align: right; /* Align text to the right within the span */
+    margin-right: 8px;
+}
+
+.profile-frame {
+    width: 60px; /* Set the size of the profile frame */
+    height: 60px; /* Set the size of the profile frame */
+    border: 2px solid rgb(153, 151, 151); /* Border color changed to black */
+    border-radius: 50%; /* Make it circular */
+    padding: 2px; /* Adjust padding to create space between border and image */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Ensure the image doesn't overflow the container */
+}
+
+.profile-frame img {
+    width: 100%; /* Fill the width of the container */
+    height: 100%; /* Fill the height of the container */
+    object-fit: cover; /* Ensure the image covers the container without distortion */
+    border-radius: 50%; /* Ensure the image fits within the circular frame */
+}
+
+/* Style for #UserName and #UserEmail */
+#UserName {
+    font-weight: bold; /* Make the font bold */
+    color: #2c3e50; /* Darker color */
     font-size: 1.2em;
     margin-left: 5px;
+}
+
+#UserEmail {
+    font-size: 0.8rem; /* Smaller font size */
+    color: #ccc; /* Light grey color */
+}
+
+/* Current Date with Calendar Icon */
+#currentDateWrapper {
+    display: flex;
+    align-items: center;
+}
+
+#currentDateWrapper i {
+    margin-right: 8px; /* Space between icon and date */
+    font-size: 1rem; /* Adjust icon size if needed */
+    color: #007BFF; /* Optional color for the icon */
+}
+
+/* Hide the up and down arrows (spinners) for number inputs */
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; /* Chrome, Safari, Edge, and Opera */
+    margin: 0; /* Remove margin */
+}
+
+/* Stepper */
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stepper .prev, .stepper .next {
+    background: none; /* Remove any background */
+    border: none; /* Remove any border */
+    cursor: pointer; /* Change cursor to pointer */
+    padding: 0; /* Remove padding */
+    font-size: 18px; /* Adjust font size as needed */
+    color: rgb(118, 125, 211); /* Color for the line */
+    outline: none; /* Remove outline */
+    margin: 0 15px; /* Space between lines */
+}
+
+.stepper .line {
+    flex-grow: 1; /* Make the line take up remaining space */
+    height: 2px; /* Thickness of the line */
+    background-color: rgb(118, 125, 211); /* Line color */
+}
+
+/* Switch container */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    margin: 0 auto; /* Centering the button horizontally */
+}
+
+/* Hide default checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Slider styles */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(36, 41, 71); /* Inactive color */
+    transition: .4s;
+    border-radius: 20px; /* Adjusted for smaller size */
+}
+
+/* Slider before (the toggle handle) */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; /* Smaller height */
+    width: 16px;  /* Smaller width */
+    border-radius: 50%;
+    left: 2px;
+    bottom: 2px;
+    background-color: white; /* Default handle color */
+    transition: .4s;
+}
+
+/* Checked slider */
+input:checked + .slider {
+    background-color: rgb(36, 41, 71); /* Active color */
+}
+
+/* Move slider handle */
+input:checked + .slider:before {
+    transform: translateX(20px); /* Adjusted for smaller size */
+    background: rgb(8, 109, 10);
+}
+
+/* Inactive slider handle */
+input:not(:checked) + .slider:before {
+    background-color: rgb(247, 57, 76);
+}
+
+/* Create Account Button with Gradient */
+.create-account button {
+    background: linear-gradient(to right,  #14256d, #324fcc);/* Dark blue to light blue gradient */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    border-radius: 20px; /* Rounded corners */
+    padding: 8px 16px; /* Add padding for size */
+    font-size: 14px; /* Font size for the button text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    margin-left: 10px; /* Space between the filter-time and the button */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light shadow for 3D effect */
+}
+
+/* Hover and Focus States */
+.create-account button:hover,
+.create-account button:focus {
+    background: linear-gradient(90deg, #0056b3, #99e6ff); /* Lighter gradient on hover */
+    outline: none; /* Remove outline */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Increase shadow on hover for depth */
+}
+
+/* Disabled State */
+.create-account button:disabled {
+    background-color: #ccc; /* Gray background for disabled state */
+    cursor: not-allowed; /* Show not-allowed cursor when disabled */
+}
+
+.create-outlet button {
+    background: linear-gradient(to right,  #14256d, #324fcc);/* Dark blue to light blue gradient */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    border-radius: 20px; /* Rounded corners */
+    padding: 8px; /* Add padding for size */
+    width: 100%;
+    font-size: 14px; /* Font size for the button text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light shadow for 3D effect */
+    height: 36px;
+}
+
+/* Hover and Focus States */
+.create-outlet button:hover,
+.create-outlet button:focus {
+    background: linear-gradient(90deg, #0056b3, #99e6ff); /* Lighter gradient on hover */
+    outline: none; /* Remove outline */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Increase shadow on hover for depth */
+}
+
+/* Disabled State */
+.create-outlet button:disabled {
+    background-color: #ccc; /* Gray background for disabled state */
+    cursor: not-allowed; /* Show not-allowed cursor when disabled */
+}
+
+/* Modal Backdrop */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
+    backdrop-filter: blur(4px); /* Blur effect on the background */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal Content Box */
+.modal-content {
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%; /* Full width on small screens */
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Slight shadow for elevation */
+    animation: slideDown 0.3s ease; /* Smooth slide down effect */
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Slide Down Animation */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px); /* Slide from top */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0); /* Normal position */
+    }
+}
+
+/* Modal Message Text */
+.modal-message {
+    font-size: 18px;
+    color: #333; /* Dark text */
+    margin-bottom: 20px;
+}
+
+/* Modal Actions (Buttons) */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Spacing between buttons */
+    margin-top: 20px;
+}
+
+/* Confirm and Cancel Buttons */
+.modal-actions button {
+    padding: 10px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Smooth hover effect */
+}
+
+/* Confirm Button (matches your theme's blue button style) */
+#confirmBtn {
+    background-color: #0056b3; /* Blue */
+    color: white;
+}
+
+#confirmBtn:hover {
+    background-color: #2980b9; /* Darker blue on hover */
+    box-shadow: 0 2px 10px rgba(52, 152, 219, 0.4); /* Hover shadow effect */
+}
+
+/* Cancel Button (matches your theme's red toggle color) */
+#cancelBtn {
+    background-color: rgb(247, 57, 76);
+    color: white;
+}
+
+#cancelBtn:hover {
+    background-color: rgb(247, 57, 76);
+    box-shadow: 0 2px 10px rgba(231, 76, 60, 0.4); /* Hover shadow effect */
+}
+
+/* Responsive Design for Smaller Screens */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 90%; /* Full width on small screens */
+    }
 }

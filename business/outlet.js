@@ -39,61 +39,68 @@ Outlet.list = async function (req,res){
 }
 
 Outlet.create = async function (req, res) {
-    let transaction; 
-    const { id, name, active, address1, address2, address3, postcode, city, state, account_id } = req.body;
-    let user_id = req.user.id; 
+    let transaction;
+    const { id, name, address1, address2, address3, postcode, city, state, account_id } = req.body;
+    const user_id = req.user.id;
 
     try {
         // Check if the user is authorized to create an outlet
-        if (req.user.user_type === 'admin') { 
-
-            if (!req.body.id || !req.body.name || !user_id) {
-                return res.status(422).send({ errMsg: "Missing required fields" });
-            }
-            // Verify if the account exists and is active
-            const account = await db.accounts.findOne({ where: { id: account_id, active: true } }); 
-
-            if (!account) {return res.status(400).send({ errMsg: "The account does not exist or is not active." });
-            }else { 
-                try{ 
-                    transaction = await sq.transaction(); 
-                    // Create a new outlet record in the database
-                    const newOutlet = await db.outlets.create({
-                        id: req.body.id,
-                        name: req.body.name,
-                        active: req.body.active,
-                        address1: req.body.address1, 
-                        address2: req.body.address2,
-                        address3: req.body.address3, 
-                        postcode: req.body.postcode, 
-                        city: req.body.city,
-                        state: req.body.state,
-                        account_id: req.body.account_id,
-                        created_by: user_id,
-                        created_at: created_at,
-                        updated_by: user_id, 
-                        updated_at: created_at
-                    }, {transaction});
-                    
-                    await transaction.commit(); 
-                    
-                    // Send the newly created outlet data as a response
-                    res.status(201).send({status : 'Success', message: 'Successfully created outlets'});
-
-                }catch (e){ 
-                    if (transaction) await transaction.rollback(); 
-                    console.error(e) 
-                }
-
-            }
-
-        } else { 
-            res.status(403).send({ errMsg: "Only admins can access this API" });
+        if (req.user.user_type !== 'admin') {
+            return res.status(403).send({ status: 'Error', message: "Only admins can access this API" });
         }
+
+        // Validate required fields
+        if (!id || !name || !user_id) {
+            return res.status(422).send({ status: 'Error', message: "Missing required fields" });
+        }
+
+        // Verify if the account exists and is active
+        const account = await db.accounts.findOne({ where: { id: account_id, active: true } });
+        if (!account) {
+            return res.status(400).send({ status: 'Error', message: "The account does not exist or is not active." });
+        }
+
+        // Start a transaction
+        transaction = await sq.transaction();
+
+        try {
+            // Create a new outlet record in the database
+            const newOutlet = await db.outlets.create({
+                id: id,
+                name: name,
+                active: true,
+                address1: address1,
+                address2: address2,
+                address3: address3,
+                postcode: postcode,
+                city: city,
+                state: state,
+                account_id: account_id,
+                created_by: user_id,
+                created_at: created_at, 
+                updated_by: user_id,
+                updated_at: created_at 
+            }, { transaction });
+
+            // Commit the transaction if everything is successful
+            await transaction.commit();
+
+            // Send success response after successful transaction
+            return res.status(201).send({ status: 'Success', message: 'Successfully created outlet', outlet: newOutlet });
+
+        } catch (error) {
+            // Rollback transaction if there is an error
+            if (transaction) await transaction.rollback();
+
+            // Log the error and send a failure response
+            console.error('Error creating outlet:', error);
+            return res.status(500).send({ status: 'Error', message: 'An error occurred while creating the outlet.' });
+        }
+
     } catch (error) {
-        // Handle any errors
-        console.error("Error creating outlet:", error);
-        res.status(500).send({ error: "An error occurred while creating the outlet." });
+        // Log the error and send a failure response if something goes wrong
+        console.error('Error during outlet creation:', error);
+        return res.status(500).send({ status: 'Error', message: 'An unexpected error occurred.' });
     }
 };
 

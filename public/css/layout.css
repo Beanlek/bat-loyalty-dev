@@ -2,11 +2,6 @@
     --nav-bar-width: 250px;
 }
 
-/* * :not(.select2 *){
-    border: 1px solid rgb(226, 226, 226);
-    border-collapse: collapse;
-} */
-
 body {
     font-family: "Poppins", sans-serif;
 }
@@ -26,13 +21,11 @@ span {
     -webkit-transition: width .05s linear;
     transition: 0.2s box-shadow, 0.2s background;
     box-shadow: var(--box-shadow);
-    z-index: 2;
+    z-index: 9;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    z-index: 9;
-    
-
+    transform: translateX(-2px); /* Moves the nav-bar 2px to the left */
 }
 
 .nav-bar__logo {
@@ -44,20 +37,27 @@ span {
 .nav-bar__main {
     height: 70%;
     list-style-type: none;
-    
+    margin-left: -20px; /* Moves the nav-bar__main 2px to the left */
 }
+.nav-bar__main li {
+    margin-bottom: 8px; /* Adds space between each list item */
+}
+
 .nav-bar__footer {
     padding-bottom: 50px;
     list-style-type: none;
-    margin-left: 26px;
+    margin-left: 4px;
+}
+.nav-bar__footer li {
+    margin-bottom: 8px; /* Adds space between each list item */
 }
 
 .content {
-    margin-left: calc(var(--nav-bar-width) + 20px);
+    margin-left: calc(var(--nav-bar-width) + 45px);
 }
 
 .header {
-    margin-left: calc(var(--nav-bar-width) + 20px);
+    margin-left: calc(var(--nav-bar-width) + 45px);
     height: 100px;
 }
 
@@ -80,7 +80,7 @@ span {
 .action__query .searchbar{
     width: 40%;
 }
-.search{
+.search {
     width: 100%;
 }
 
@@ -101,6 +101,7 @@ span {
 
 .title-bar__title {
     float: inline-start;
+    margin-top: 20px;
 }
 .title-bar__title h1 {
     font-size: 24px;
@@ -112,18 +113,33 @@ span {
 
 .data-list {
     width: 100%;
-    padding: 12;
+    padding: 12px;
 }
+
 a {
      text-decoration: none;
      color: white;
-     
-     }
-i.icon-with-text {
-    display: inline-flex; /* Ensures icon and text are inline */
-    align-items: center; /* Aligns items vertically */
 }
 
-.icon-with-text .icon {
-    margin-right: 8px; /* Adjust the margin between icon and text */
+/* Container for icon and text */
+li a {
+    display: flex;
+    align-items: center;
+}
+
+/* Ensure icon and text are aligned horizontally */
+img.icon-with-text {
+    margin-right: 8px; /* Space between icon and text */
+    display: inline-block; /* Keep the icon inline */
+    width: 50px; /* Set a fixed width for the icon */
+    text-align: center; /* Center the icon */
+    vertical-align: top; /* Align the icon to the top of the text */
+}
+
+/* Text stays aligned when it wraps */
+span.nav-text {
+    display: inline-block;
+    white-space: normal; /* Allow text wrapping */
+    text-indent: 0; /* No indentation on the first line */
+    line-height: 1.2; /* Adjust line height for better readability */
 }

@@ -31,6 +31,10 @@ router.get('/app/registerValidate', async (req, res) => {
     biz.users.isExistPhoneUsername(req, res); 
 }); 
 
+router.post('/app/userValidate', async (req, res) => { 
+    biz.users.isExistUsername(req, res); 
+}); 
+
 router.post('/app/updateSelf', apiAuth.checkToken, async (req, res) => {
     req.params.mobile = req.token.mobile;
     req.params.user_id = req.token.user_id;

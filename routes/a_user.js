@@ -11,4 +11,12 @@ router.get('/web/list', jwtAuth.checkToken, async (req, res)=>{
     biz.users.list(req,res);
 });
 
+router.get('/web/profile', jwtAuth.checkToken, async (req, res)=>{
+    biz.users.profile(req,res);
+});
+
+router.put('/web/activate/:id', jwtAuth.checkToken, async (req, res)=>{
+    biz.users.activate(req,res);
+});
+
 module.exports = router;

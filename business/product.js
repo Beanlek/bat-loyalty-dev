@@ -24,15 +24,18 @@ let created_at = new Intl.DateTimeFormat('en-US', {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-}).format(new Date());
+}).format(new Date()); 
+
 
 Product.insert = async function(req,res){ 
     let transaction; 
     let user_id = req.user.id; 
     const { id, name, brand, image, points, active, created_by, updated_by } = req.body;
 
-    console.log("Request Body: ", req.body);
-    console.log("User ID: ", user_id); 
+    // console.log("Request Body: ", req.body);
+    // console.log("User ID: ", user_id); 
+
+    let idIsAlreadyExists = await db.products.findOne({where : {id : id}}); 
 
     try{ 
         if (req.user.user_type === 'admin'){ 
@@ -40,33 +43,37 @@ Product.insert = async function(req,res){
             if (!req.body.id || !req.body.name || !user_id) {
                 return res.status(422).send({ errMsg: "Missing required fields" });
             }else{ 
-                try { 
+                if (idIsAlreadyExists) { 
+                    return res.status(400).send({ errMsg: "The ID already exists" });
+                }else { 
+                    try { 
 
-                    transaction = await sq.transaction();
-
-                    const product = await db.products.create({  
-                        id : req.body.id, 
-                        name: req.body.name, 
-                        brand: req.body.brand, 
-                        image: req.body.image, 
-                        points: req.body.points, 
-                        active: req.body.active, 
-                        created_by: user_id, 
-                        created_at: created_at, 
-                        updated_by: user_id, 
-                        updated_at: created_at
-                    },{transaction}); 
-
-                    await transaction.commit(); 
-
-                    return res.status(201).send({ status: 'Success', message: `Successfully added Product #${name}`});
-
-                }catch(e) { 
-
-                    if (transaction) await transaction.rollback(); 
-                    console.error(e) 
-
-                }  
+                        transaction = await sq.transaction();
+    
+                        const product = await db.products.create({  
+                            id : req.body.id, 
+                            name: req.body.name, 
+                            brand: req.body.brand, 
+                            image: req.body.image, 
+                            points: req.body.points, 
+                            active: req.body.active, 
+                            created_by: user_id, 
+                            created_at: created_at, 
+                            updated_by: user_id, 
+                            updated_at: created_at
+                        },{transaction}); 
+    
+                        await transaction.commit(); 
+    
+                        return res.status(201).send({ status: 'Success', message: `Successfully added Product #${name}`});
+    
+                    }catch(e) { 
+    
+                        if (transaction) await transaction.rollback(); 
+                        console.error(e) 
+    
+                    }  
+                }
             }
 
         }else{ 
@@ -113,6 +120,7 @@ Product.getById = async function(req,res){
 };
 
 Product.update = async function(req,res){ 
+    let user_id = req.user.id;
     let productId = req.params.id; 
     let transaction; 
     let updatedProduct; 
@@ -131,7 +139,9 @@ Product.update = async function(req,res){
         name: req.body.name,
         brand: req.body.brand,
         image: req.body.image, 
-        points: req.body.points
+        points: req.body.points, 
+        updated_at: created_at, 
+        updated_by: user_id
     }
 
     try { 
@@ -148,8 +158,7 @@ Product.update = async function(req,res){
         }
 
         await transaction.commit(); 
-        res.status(200).send({message: 'Product updated successfully', updatedProduct}); 
-        return id; 
+        res.status(200).send({status: 'Success', message: 'Product updated successfully', updatedProduct}); 
 
     }catch (e) { 
         if (transaction) await transaction.rollback(); 
@@ -157,29 +166,76 @@ Product.update = async function(req,res){
         return res.status(500).send({errMsg: "Internal Server Error"});
 
     } 
-    return res.status(200).send({status: 'Success', message: `Product ID = ${id} is updated`})
 } 
 
-// Product.activate = async function(req,res){ 
+Product.activate = async function(req,res){ 
+    let user_id = req.user.id;
+    let productId = req.params.id;
+    let transaction; 
+    const updateActive = { 
+        active : true,
+        updated_by: user_id, 
+        updated_at: created_at
+     }; 
+    const updateDeactive = { 
+        active : false, 
+        updated_by: user_id, 
+        updated_at: created_at 
+    }; 
 
-// } 
+    if(!productId) return res.status(422).send({errMsg: 'Missing Product ID!'}); 
 
-// Product.deactivate = async function(req,res){ 
+    let isProductIdExist = await db.products.findOne({ 
+        where: { 
+            id: productId
+        }
+    }) 
 
-// } 
+    if (!isProductIdExist) return res.status(422).send({errMsg: 'Product ID is not valid'}); 
+
+    if (req.user.user_type === 'admin') { 
+        try{ 
+        
+            transaction = await sq.transaction(); 
+    
+            let product = await db.products.findOne({ 
+                where : { id : productId}
+            }); 
+    
+            if (product.active === false) { 
+                await db.products.update(updateActive, { 
+                    where : { id : productId },
+                   transaction
+                }) 
+    
+            }else { 
+                await db.products.update(updateDeactive, { 
+                    where : { id : productId },
+                    transaction
+                }) 
+            } 
+            await transaction.commit();  
+            return res.status(200).send({message: `Product status updated`}); 
+    
+        }catch (e){ 
+            if (transaction && !transaction.finished) await transaction.rollback(); 
+            console.error(e); 
+            return res.status(500).send({errMsg: "Internal Server Error"}); 
+        }
+    } else { 
+        res.status(403).send({
+            message: 'Access Denied: This route is only accessible to ADMIN only'
+        })
+    }
+};
 
 Product.list = async function(req,res){ 
-    let products;
-             
+    let products; 
     try{ 
-                       
         const products = await db.products.findAll({ 
             attributes: ['id', 'name', 'brand', 'image', 'points'], 
-           })  
-            
+            })  
         res.send(products); 
-    
-    
     }catch (error) { 
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });

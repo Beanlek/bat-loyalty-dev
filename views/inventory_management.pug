@@ -1,0 +1,22 @@
+extends layout
+
+block styles
+    link(rel='stylesheet', href='/css/user_maintenance.css')
+    link(rel='stylesheet', href='/css/table.css')
+    script(src="/js/profile.js")
+
+block header
+    .title-bar
+        .title-bar__title
+            h1 Inventory Management
+            span.breadcrumbs Dashboard > #{page}
+        .title-bar__profile
+            .profile-info
+                span#UserName
+                br
+                span#UserEmail
+            .profile-frame
+                img(src='/img/logo/profile.png')
+    
+
+block content

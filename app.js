@@ -9,23 +9,29 @@ const helmet = require('helmet');
 const nocache = require('nocache');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
+const multer = require('multer'); 
+const sharp = require('sharp'); 
+const fs = require('fs');
 
 //Mobile
 const apiAuthRouter = require('./routes/api_auth');
 const apiUserRouter = require('./routes/api_user'); 
 const apiProductRouter = require('./routes/api_product'); 
 const apiAccountRouter = require('./routes/api_account'); 
+const apiUserAccountRouter = require('./routes/api_user_account'); 
 const apiOutletRouter = require('./routes/api_outlet');
 
 //Web
 const indexRouter = require('./routes/index');
 const loginRouter = require('./routes/login');
-const userRouter = require('./routes/a_user');
+
 const accountRouter = require('./routes/a_account');
-const userAccountRouter = require('./routes/a_user_account');
+const loyaltyProductRouter = require('./routes/a_loyalty_product');
 const outletRouter = require('./routes/a_outlet');
 const productRouter = require('./routes/a_product'); 
-const loyaltyProductRouter = require('./routes/a_loyalty_product'); 
+const s3Router = require('./routes/a_s3');
+const userAccountRouter = require('./routes/a_user_account');
+const userRouter = require('./routes/a_user');
 
 const app = express();
 
@@ -33,19 +39,13 @@ app.use(express.json());
 app.use(express.urlencoded({limit: '50mb', extended: true }));
 app.use(cookieParser());
 
-// app api
-app.use('/api/auth', apiAuthRouter);
-app.use(express.json()); 
-// app.use(express.urlencoded({ extended: true })); 
-
 //Mobile Router 
 app.use('/api/auth', apiAuthRouter); 
 app.use('/api/user', apiUserRouter); 
 app.use('/api/product', apiProductRouter);  
 app.use('/api/account', apiAccountRouter); 
-app.use('/api/outlet', apiOutletRouter); 
-app.use(express.urlencoded({limit: '50mb', extended: true }));
-app.use(cookieParser());
+app.use('/api/user_account', apiUserAccountRouter); 
+app.use('/api/outlet', apiOutletRouter);
 
 // pug engine (required)
 app.set('views', path.join(__dirname, 'views'));
@@ -62,12 +62,13 @@ app.use(logger('customFormat'));
 // web pages
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
-app.use('/a/user', userRouter);
-app.use('/a/product', productRouter); 
-app.use('/a/outlet', outletRouter);
-app.use('/a/user_account',userAccountRouter);
 app.use('/a/account', accountRouter);
 app.use('/a/loyalty_product', loyaltyProductRouter);
+app.use('/a/outlet', outletRouter);
+app.use('/a/product', productRouter); 
+app.use('/a/s3', s3Router); 
+app.use('/a/user_account',userAccountRouter);
+app.use('/a/user', userRouter);
 
 
 // 404 error handler
@@ -87,6 +88,24 @@ app.use(function(err, req, res, next) {
         return res.status(404).send('API not found');
     }
     return res.redirect('/login');
+    }
+
+    if(err instanceof multer.MulterError){ 
+        if(err.code === "LIMIT_FILE_SIZE"){ 
+            return res.status(400).json({ 
+                message: "File size is too large",
+            })
+        }  
+        if(err.code === "LIMIT_FILE_COUNT") { 
+            return res.status(400).json({ 
+                message: "File limit reached",
+            })
+        } 
+        if(err.code === "LIMIT_UNEXPECTED_FILE") { 
+            return res.status(400).json({ 
+                message: "File must be an image",
+            })
+        } 
     }
     
     console.error(err);
