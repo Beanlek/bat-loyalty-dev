@@ -2,7 +2,8 @@ extends layout
 
 block styles
     link(rel='stylesheet', href='/css/table.css')
-    script(src="/js/user_maintenance.js")
+    link(rel='stylesheet', href='/css/process_receipt.css')
+    script(src="/js/process_receipt.js")
     script(src="/js/profile.js")
 
 block header
@@ -17,7 +18,6 @@ block header
                 span#UserEmail
             .profile-frame
                 img(src='/img/logo/profile.png')
-    
 
 block content
     .action
@@ -27,10 +27,10 @@ block content
                     i.fa.fa-search.search-icon
                     input.search(type="search")
             .filter-type
-                select#user_type
+                select#status
                     option( value="all") All
-                    option( value="admin") Admin
-                    option( value="cashier") Cashier
+                    option( value="Success") Success
+                    option( value="In Process") In Process
             .filter-time
                 select#time
                     option( value="any_time") Any Time
@@ -51,9 +51,23 @@ block content
                 i(class="fa-solid fa-chevron-left")
             button.next
                 i(class="fa-solid fa-chevron-right")
+    table.data-list
+        thead
+            tr
+                th No.
+                th User ID
+                th Outlet ID
+                th Status
+                th Image Point
+                th Created By
+                th Receipt Ori
+                th Receipt OCR
+        tbody
+    .loading-indicator Loading...
 
-    
-  
-           
+    // Modal for previewing images
+    .modal#imagePreviewModal
+        .modal-content
+            span.close-button &times;
+            img#imagePreview(src='', alt='Receipt Image Preview')
 
-            

@@ -9,7 +9,7 @@
 .header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Align items and add space between them */
+    justify-content: space-between;
     width: 100%;
     max-width: 800px;
     margin-bottom: 20px;
@@ -152,3 +152,14 @@ button:hover {
     font-size: 24px; /* Adjust the size as necessary */
   }
     
+  @media (max-width: 768px) {
+    .summary, .receipt {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .box, .box2 {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}

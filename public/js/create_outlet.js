@@ -122,17 +122,18 @@ function createOutlet(id, name, address1, address2, address3, postcode, city, st
                     console.log('Outlet creation successful:', response.message);
                 } else {
                     document.getElementById('success-message').style.display = 'none';
+                    document.getElementById('error-message').textContent = response.message;
                     document.getElementById('error-message').style.display = 'block';
                     console.error('Error creating outlet:', response.message);
                 }
             } else {
                 document.getElementById('success-message').style.display = 'none';
+                document.getElementById('error-message').textContent = response.message || 'Unknown error occurred';
                 document.getElementById('error-message').style.display = 'block';
                 console.error('Error creating outlet:', response.message || 'Unknown error occurred');
             }
         }
     };
-
     const data = JSON.stringify({
         id: id,
         name: name,

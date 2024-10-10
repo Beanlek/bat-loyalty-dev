@@ -1,0 +1,23 @@
+.coming-soon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 88vh; /* Full height */
+    flex-direction: column;
+    text-align: center;
+    background-color: #1d2434; /* Dark blue-gray background */
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+    border-radius: 3px;
+}
+
+.coming-soon-title {
+    font-size: 3em;
+    margin-bottom: 0.5em;
+}
+
+.coming-soon-subtitle {
+    font-size: 1.2em;
+}
