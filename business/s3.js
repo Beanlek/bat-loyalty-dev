@@ -130,7 +130,7 @@ S3.deleteFile = async function (req, res){
 
 S3.getObjectSignedUrl = async function (req, res){
     let user_id = req.user.id; 
-    const receiptImageId = req.body.receiptImageId;
+    const receiptImageId = req.body.receiptImageId; 
 
     const receiptImages = await db.receipt_images.findOne({
       attributes: ['image', 'image_ocr'], 

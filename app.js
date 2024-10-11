@@ -36,7 +36,7 @@ app.use(express.json());
 //Web Router
 app.use('/a/product', productRouter); 
 app.use('/a/outlet', outletRouter); 
-// app.use('/a/ocr', ocrRouter); 
+app.use('/a/ocr', ocrRouter); 
 app.use('/a/loyalty_product', loyaltyProductRouter);
 app.use('/a/s3', s3Router); 
 

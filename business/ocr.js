@@ -1,118 +1,199 @@
-// const env = process.env.NODE_ENV || 'dev';
-// const conf = require('../config/config.json')[env];
-// const express = require('express');
-// const router = express.Router();
-// const bcrypt = require('bcrypt');
-// const dayjs = require('dayjs');
-// const {Parser} = require('json2csv');
-// const jwtAuth = require('../common/jwtAuth.js');
-// const Password = require('../common/password.js');
-// const generator = require('generate-password');
-// const db = require('../model/db.js');
-// const escapeHtml = require('escape-html');
-// const Op = db.Sequelize.Op;
-// const sq = db.sequelize;
-// const df = 'YYYY-MM-DD';
-// const limit = 20;
-// const Tesseract = require('tesseract.js'); 
-// const sharp = require('sharp'); 
-// const multer = require('multer');
-// const fs = require('fs');
-// const path = require('path'); 
+const env = process.env.NODE_ENV || 'dev';
+const conf = require('../config/config.json')[env];
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const dayjs = require('dayjs');
+const {Parser} = require('json2csv');
+const jwtAuth = require('../common/jwtAuth.js');
+const Password = require('../common/password.js');
+const generator = require('generate-password');
+const db = require('../model/db.js');
+const escapeHtml = require('escape-html');
+const Op = db.Sequelize.Op;
+const sq = db.sequelize;
+const df = 'YYYY-MM-DD';
+const limit = 20; 
+const{ S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const Tesseract = require('tesseract.js'); 
+const sharp = require('sharp'); 
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');  
+const fetch = require('node-fetch'); 
 
-// let Ocr = {}; 
+let Ocr = {}; 
 
-// Ocr.calculatePoints = async function (req, res){ 
-//   let name = name; 
-//   let points = points; 
-// } 
+const region = conf.aws.aws_region; 
+const bucketName = conf.aws.aws_bucketName; 
+const accessKeyId = conf.aws.aws_access_key_id; 
+const secretAccessKey = conf.aws.aws_secret_access_key; 
 
-// Ocr.extractTexts = async function (req, res){ 
+const s3Client = new S3Client({
+    region,
+    credentials: {
+      accessKeyId,
+      secretAccessKey
+    }
+}) 
 
+Ocr.calculatePointsFromImage = async function (req, res){ 
+    let user_id = req.user.id; 
+    const receiptImageId = req.body.receiptImageId; 
 
+    const receiptImages = await db.receipt_images.findOne({
+        attributes: [ 'image_ocr' ], 
+        where: { user_id: user_id, id: receiptImageId}, 
+        raw: true 
+    });
 
-// }
+    if (!receiptImages) {
+        return res.status(404).send({ errMsg: "No receipt images found" });
+    } 
 
-// // Define the threshold value (0-255)
-// const thresholdValue = 150;
+    const imageOcr = `receipts/${user_id}/${receiptImages.image_ocr}`; 
 
-// // Can change it by reading the data from database 
+    const paramsOcr = {
+        Bucket: bucketName, 
+        Key: imageOcr
+    } 
 
-// // loyalty_products = db.products.findAll({ 
-// //   where: {name: name, points: points}
-// // }) 
+    try{ 
 
-// BAT_products = [
-//     { name: 'Dunhill', point: 10 },
-//     { name: 'Lucky Strike', point: 20 },
-//     { name: 'Pall Mall', point: 30 },
-//     { name: 'Rothmans', point: 40 },
-//     { name: 'Gardenia', point: 50 }, 
-//     { name: 'Dutch Lady', point: 100 }
-// ];
+        collected_point = 0; 
+        const seconds = 1800; 
+        const commandOcr = new GetObjectCommand(paramsOcr);
+        const urlOcr = await getSignedUrl(s3Client, commandOcr, { expiresIn: seconds}) 
 
-// // Initial point
-// collected_point = 0
+        const response = await fetch(urlOcr);
+        const arrayBuffer = await response.arrayBuffer();  // Convert blob to arrayBuffer
+        const buffer = Buffer.from(arrayBuffer);  // Convert arrayBuffer to Node.js buffer
 
-// // Convert image to grayscale, then apply thresholding
-// sharp('images/OcrTest6.jpeg')
-//   .grayscale()
-//   .raw()
-//   .toBuffer({ resolveWithObject: true })
-//   .then(({ data, info }) => {
-//     for (let i = 0; i < data.length; i++) {
-//       data[i] = data[i] < thresholdValue ? 0 : 255;
-//     }
-//     return sharp(data, {
-//       raw: {
-//         width: info.width,
-//         height: info.height,
-//         channels: 1,
-//       },
-//     })
-//       .toFile(`images/OcrTest6-thresholded.jpeg`);
-//   })
-//   .then(() => {
-//     console.log('Thresholding complete. Output saved as output_thresholded.jpg');
-//   })
-//   .catch(err => {
-//     console.error('Error processing image:', err);
-//   });
+        const batProducts = await db.products.findAndCountAll({ 
+            attributes :  [ 'name', 'points' ], 
+            raw: true
+        }); 
+    
+        //maybe can ignore if no bat products in the receipt... 
+        
+        // if(!batProducts.length){ 
+        //     let transaction; 
+        //     try{ 
 
-// // Extract text from processed image
-// Tesseract.recognize(
-// 'images/OcrTest6-thresholded.jpeg',
-// 'eng',
-// {
-//     logger: m => console.log(m)
-// }
-// ).then(({ data: { text } }) => {
-// console.log(text);
+        //         transaction = await sq.transaction(); 
 
-// // Loop each product to compare with extracted text
-// BAT_products.forEach(function(prod) {
-//     if(searchWord(text, prod.name))
-//         collected_point=collected_point+prod.point
-// });
+        //         updateImageStatus = await db.receipt_images.update(
+        //             { status: 'Failed' }, 
+        //             { 
+        //                 where: { id: receiptImageId, status: 'In Process' } 
+        //             },
+        //             {transaction}
+        //         );
 
-// // Total point
-// console.log(collected_point);
-// });
+        //         await transaction.commit(); 
 
-// // Find product from extracted text
-// function searchWord(text, word) {
-//     // Normalize both text and word to lowercase for case-insensitive search
-//     const normalizedText = text.toLowerCase();
-//     const normalizedWord = word.toLowerCase();
+        //     }catch(e){ 
 
-//     // Search for the word in the text
-//     const position = normalizedText.indexOf(normalizedWord);
+        //         if(transaction) await transaction.rollback(); 
+        //         console.error("Error while updating the receipt image status to 'Failed' ", e); 
+        //         throw e;
 
-//     if (position !== -1) {
-//         return true;
-//     } else {
-//         return false;
-//     }
-// } 
+        //     }
 
-// module.exports = Ocr; 
+        //     return res.status(400).send({ status: 'Failed', errMsg: 'No BAT products exist in the receipt'}); 
+
+        // } 
+
+        // let points = []; 
+        // for (let bP of batProducts) { 
+        //     points.push(bP.point); // Assuming 'point' is a valid column 
+        // } 
+    
+        // // Check if points exist 
+        // if (!points.length) { 
+        //     return res.status(400).send({status: 'No points for the products found in the database'}); 
+        // } 
+
+        try{ 
+
+            const ocrResult = await Tesseract.recognize(buffer, 'eng',{ 
+                logger: m => console.log(m)
+            }).then(({ data: { text } }) => {
+                console.log(text); 
+    
+                // Loop each product to compare with extracted text
+                // batProducts.rows.forEach(async function(prod) {
+                //     if(searchWord(text, prod.name))
+                //         collected_point=collected_point+prod.points 
+                // }); 
+
+                for (const prod of batProducts.rows) {
+                    if (searchWord(text, prod.name)) {
+                        collected_point += prod.points;
+                    }
+                }
+    
+                // Total point
+                console.log(collected_point);
+                }); 
+
+                //for this function. Check before looping whether or not product exists in the db. 
+    
+                function searchWord(text, word) {
+                    // Normalize both text and word to lowercase for case-insensitive search
+                    const normalizedText = text.toLowerCase();
+                    const normalizedWord = word.toLowerCase();
+                
+                    // Search for the word in the text
+                    const position = normalizedText.indexOf(normalizedWord);
+                
+                    if (position !== -1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } 
+
+        }catch(e){ 
+            console.error("Error while calculating points for the image: ", e); 
+            throw e;
+        }
+
+        let transaction; 
+
+        try{ 
+            
+            transaction = await sq.transaction(); 
+            updateImagePoints = await db.receipt_images.update(
+                { 
+                    image_points: collected_point, 
+                    status: 'Success'
+                }, 
+                { 
+                    where: { id: receiptImageId, status: 'In Process' } 
+                },
+                {transaction}
+            ); 
+
+            await transaction.commit(); 
+
+        }catch(e){ 
+
+            if(transaction) await transaction.rollback(); 
+            console.error("Error updating the DB for new image points", e); 
+            throw e;
+
+        } 
+
+        return res.status(200).send({status: 'Success', collected_point})
+          
+      }catch(e) { 
+        return res.status(400).send({status: 'Error while fetching the image'})
+        // console.error("Error while fetching the image:", e); 
+        // throw e; 
+      }
+
+} 
+
+module.exports = Ocr; 
