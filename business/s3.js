@@ -133,6 +133,8 @@ S3.getObjectSignedUrl = async function (req, res){
     let user_id = req.user.id; 
     const receiptImageId = req.body.receiptImageId;
 
+    if (!receiptImageId) { return res.status(404).send({ errMsg: "No receipt image ID" }); }
+
     const receiptImages = await db.receipt_images.findOne({
       attributes: ['image', 'image_ocr'], 
       where: { user_id: user_id, id: receiptImageId}, 
@@ -140,9 +142,7 @@ S3.getObjectSignedUrl = async function (req, res){
       raw: true 
     });
 
-    if (!receiptImages) {
-      return res.status(404).send({ errMsg: "No receipt images found" });
-    }
+    if (!receiptImages) { return res.status(404).send({ errMsg: `No receipt images found for user ${user_id}` }); }
 
     const imageOriginal = `receipts/${user_id}/${receiptImages.image}`;
     const imageOcr = `receipts/${user_id}/${receiptImages.image_ocr}`;
