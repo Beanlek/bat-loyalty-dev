@@ -2,6 +2,7 @@ const business = {};
 
 business.account = require('./account.js');
 business.loyalty_product = require('./loyalty_product.js');
+business.ocr = require('./ocr.js'); 
 business.outlets = require('./outlet.js');
 business.products = require('./product.js');
 business.s3 = require('./s3.js'); 

@@ -27,6 +27,7 @@ const loginRouter = require('./routes/login');
 
 const accountRouter = require('./routes/a_account');
 const loyaltyProductRouter = require('./routes/a_loyalty_product');
+const ocrRouter = require('./routes/a_ocr'); 
 const outletRouter = require('./routes/a_outlet');
 const productRouter = require('./routes/a_product'); 
 const s3Router = require('./routes/a_s3');
@@ -64,6 +65,7 @@ app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/a/account', accountRouter);
 app.use('/a/loyalty_product', loyaltyProductRouter);
+app.use('/a/ocr', ocrRouter); 
 app.use('/a/outlet', outletRouter);
 app.use('/a/product', productRouter); 
 app.use('/a/s3', s3Router); 
