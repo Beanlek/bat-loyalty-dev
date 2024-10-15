@@ -2,7 +2,8 @@ extends layout
 
 block styles
     link(rel='stylesheet', href='/css/table.css')
-    script(src="/js/cashier.js")
+    script(src="/js/outletss.js")
+    script(src="/js/profile.js")
 
 block header
     .title-bar
@@ -11,14 +12,14 @@ block header
             span.breadcrumbs 
                 a(href='/dashboard') Dashboard
                 |  > 
-                a(href='/account_maintenance') Account Maintenance
-                |  > 
                 a#outletBreadcrumb(href='#') Outlet
-                |  >
-                a#cashierBreadcrumb(href='#') Cashier
         .title-bar__profile
-            span User ID: #{user_id}
-
+            .profile-info
+                span#UserName
+                br
+                span#UserEmail
+            .profile-frame
+                img(src='/img/logo/profile.png')
 block content
     .action
         .action__query
@@ -26,6 +27,7 @@ block content
                 form.bar(action="")
                     i.fa.fa-search.search-icon
                     input.search(type="search")
+            
         .action__pagination
             .paginator
                 span Page
@@ -41,10 +43,8 @@ block content
             tr
                 th No.
                 th ID
-                th Email
                 th Name
                 th Address
-                th Last Login
                 th Status
                 th Created At 
                 th Created By

@@ -133,6 +133,8 @@ S3.getObjectSignedUrl = async function (req, res){
     let user_id = req.user.id; 
     const receiptImageId = req.body.receiptImageId;
 
+    if (!receiptImageId) { return res.status(404).send({ errMsg: "No receipt image ID" }); }
+
     const receiptImages = await db.receipt_images.findOne({
       attributes: ['image', 'image_ocr'], 
       where: { user_id: user_id, id: receiptImageId}, 
@@ -140,9 +142,7 @@ S3.getObjectSignedUrl = async function (req, res){
       raw: true 
     });
 
-    if (!receiptImages) {
-      return res.status(404).send({ errMsg: "No receipt images found" });
-    }
+    if (!receiptImages) { return res.status(404).send({ errMsg: `No receipt images found for user ${user_id}` }); }
 
     const imageOriginal = `receipts/${user_id}/${receiptImages.image}`;
     const imageOcr = `receipts/${user_id}/${receiptImages.image_ocr}`;
@@ -186,6 +186,66 @@ S3.getObjectSignedUrl = async function (req, res){
       return res.status(500).send({status:'failed', errMsg: `Error getting image url ${e}.`});
     }
     
-} 
+}
+
+S3.getObjectSignedUrlAdmin = async function (req, res) {
+  const receiptImageId = req.body.receiptImageId;
+
+  try {
+      // Fetch the receipt image details along with the user_id from the receipt_images table
+      const receiptImages = await db.receipt_images.findOne({
+          attributes: ['image', 'image_ocr', 'user_id'], // Ensure user_id is fetched here
+          where: { id: receiptImageId },
+          raw: true 
+      });
+
+      if (!receiptImages) {
+          return res.status(404).send({ errMsg: "No receipt images found for the provided ID" });
+      }
+
+      const user_id = receiptImages.user_id;  // Extract user_id from the receipt data
+
+      // Now generate the image paths using the user_id retrieved from the database
+      const imageOriginal = `receipts/${user_id}/${receiptImages.image}`;
+      const imageOcr = `receipts/${user_id}/${receiptImages.image_ocr}`;
+
+      const paramsOriginal = {
+          Bucket: bucketName,
+          Key: imageOriginal
+      };
+
+      const paramsOcr = {
+          Bucket: bucketName,
+          Key: imageOcr
+      };
+
+      try {
+          // Use GetObjectCommand to generate signed URLs for both original and OCR images
+          const commandOriginal = new GetObjectCommand(paramsOriginal);
+          const commandOcr = new GetObjectCommand(paramsOcr);
+
+          // Signed URL expiration set to 30 minutes (1800 seconds)
+          const urlOriginal = await getSignedUrl(s3Client, commandOriginal, { expiresIn: 1800 });
+          const urlOcr = await getSignedUrl(s3Client, commandOcr, { expiresIn: 1800 });
+
+          // Send the signed URLs back to the client
+          res.status(200).send({
+              status: 'successfully get the signed url for the images.',
+              data: {
+                  url_original: urlOriginal,
+                  url_ocr: urlOcr,
+              }
+          });
+
+      } catch (e) {
+          console.error("Error getting signed URLs from AWS S3:", e);
+          return res.status(500).send({ status: 'failed', errMsg: `Error getting signed URLs ${e}.` });
+      }
+
+  } catch (e) {
+      console.error("Error fetching receipt image from the database:", e);
+      return res.status(500).send({ errMsg: 'Error fetching receipt image from the database' });
+  }
+};
 
 module.exports = S3; 

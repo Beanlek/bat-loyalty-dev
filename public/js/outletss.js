@@ -1,65 +1,46 @@
 $(async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
-    const outletId = urlParams.get('outletId');
-    const userName = decodeURIComponent(urlParams.get('userName'));
 
-    $('#userName').text(userName); // Assuming you have an element with id="userName" to display the userName
-
-    let allUserAccounts = [];
     let allOutlets = [];
-    let userOutlets = [];
+    let filteredOutlets = [];
+    let currentPage = 1;
+    const outletsPerPage = 10; // Number of outlets per page
+    let totalPages = 1;
 
-    async function fetchUserAccounts() {
-        try {
-            const response = await $.get("/a/user_account/web/list");
-            allUserAccounts = response;
-            console.log('Fetched user accounts:', allUserAccounts);
-            filterUserOutlets();
-        } catch (error) {
-            console.error('Error fetching user accounts:', error);
-        }
-    }
-
+    // Fetch all outlets from the server
     async function fetchOutlets() {
         try {
             const response = await $.get("/a/outlet/web/list");
             allOutlets = response;
-            console.log('Fetched outlets:', allOutlets);
+            console.log('Fetched all outlets:', allOutlets);
+
+            // Initially set filteredOutlets to all outlets
+            filteredOutlets = allOutlets;
+
+            // Calculate total pages and update table
+            totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+            $('.total-pages').text(totalPages);
+
+            // Show the first page of outlets
+            updateOutletTable();
         } catch (error) {
             console.error('Error fetching outlets:', error);
         }
     }
 
-    function filterUserOutlets() {
-        console.log(userId);
-        userOutlets = []; // Clear the array before populating it again
-
-        // Filter all user accounts for the current userId
-        const matchingUserAccounts = allUserAccounts.filter(account => account.user_id === userId);
-
-        // Iterate through each matching user account and find the corresponding outlet
-        matchingUserAccounts.forEach(userAccount => {
-            const matchedOutlet = allOutlets.find(outlet => outlet.id === userAccount.outlet_id);
-            if (matchedOutlet) {
-                userOutlets.push(matchedOutlet);
-            }
-        });
-
-        console.log('Filtered user outlets:', userOutlets);
-        updateOutletTable(userOutlets);
-    }
-
-    function updateOutletTable(outlets) {
+    // Update the table with outlets for the current page
+    function updateOutletTable() {
         const $tbody = $('.data-list tbody');
         $tbody.empty();
 
-        outlets.forEach((outlet, index) => {
-            let billingAddress = formatBillingAddress(outlet);
+        // Calculate the range of outlets to show for the current page
+        const startIndex = (currentPage - 1) * outletsPerPage;
+        const endIndex = Math.min(startIndex + outletsPerPage, filteredOutlets.length);
 
-            let row =
-                `<tr class="data">
-                    <td>${index + 1}</td>
+        filteredOutlets.slice(startIndex, endIndex).forEach((outlet, index) => {
+            let billingAddress = formatBillingAddress(outlet);
+            let row = `
+                <tr class="data">
+                    <td>${startIndex + index + 1}</td>
                     <td>${outlet.id || ''}</td>
                     <td>${outlet.name || ''}</td>
                     <td>${billingAddress}</td>
@@ -75,6 +56,9 @@ $(async () => {
 
             $tbody.append(row);
         });
+
+        // Update the current page input
+        $('.current-page').val(currentPage);
     }
 
     async function updateOutletStatus(outletId, isActive) {
@@ -101,7 +85,7 @@ $(async () => {
         }
     }
 
-
+    // Helper function to format billing address
     function formatBillingAddress(outlet) {
         let addressParts = [
             outlet.address1,
@@ -147,18 +131,53 @@ $(async () => {
         });
     });
 
-    // Event listener for search input
-    $('.searchbar input.search').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase();
-        const filteredOutlets = userOutlets.filter(outlet => {
-            const idMatch = outlet.id.toLowerCase().includes(searchTerm);
-            const nameMatch = outlet.name.toLowerCase().includes(searchTerm);
-            const addressMatch = formatBillingAddress(outlet).toLowerCase().includes(searchTerm);
-            return idMatch || nameMatch || addressMatch;
+    // Search functionality: filter outlets by ID, Name, or Address
+    $('.search').on('input', function () {
+        const query = $(this).val().toLowerCase();
+
+        // Filter based on ID, Name, or Address
+        filteredOutlets = allOutlets.filter(outlet => {
+            return (
+                outlet.id.toLowerCase().includes(query) ||
+                outlet.name.toLowerCase().includes(query) ||
+                formatBillingAddress(outlet).toLowerCase().includes(query)
+            );
         });
-        updateOutletTable(filteredOutlets);
+
+        // Reset to page 1 and update the table
+        currentPage = 1;
+        totalPages = Math.ceil(filteredOutlets.length / outletsPerPage);
+        $('.total-pages').text(totalPages);
+        updateOutletTable();
     });
 
+    // Handle pagination: previous page
+    $('.prev').click(() => {
+        if (currentPage > 1) {
+            currentPage--;
+            updateOutletTable();
+        }
+    });
+
+    // Handle pagination: next page
+    $('.next').click(() => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            updateOutletTable();
+        }
+    });
+
+    // Handle manual page input
+    $('.current-page').on('change', function () {
+        const inputPage = parseInt($(this).val(), 10);
+        if (inputPage >= 1 && inputPage <= totalPages) {
+            currentPage = inputPage;
+            updateOutletTable();
+        } else {
+            $(this).val(currentPage); // Reset to current page if invalid
+        }
+    });
+
+    // Fetch outlets and update the table on page load
     await fetchOutlets();
-    await fetchUserAccounts();
 });

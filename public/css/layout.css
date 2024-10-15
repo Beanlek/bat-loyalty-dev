@@ -12,7 +12,7 @@ span {
 
 .nav-bar {
     padding: 12px;
-    width: calc(var(--nav-bar-width) - 10px);
+    width: 260px;
     height: 100vh;
     background-color: rgb(36,41,71);
     border-radius: 30px;

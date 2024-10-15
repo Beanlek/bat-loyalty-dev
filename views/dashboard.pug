@@ -22,69 +22,52 @@ block header
             .profile-frame
                 img(src='/img/logo/profile.png')
 
-        
-
-
 block content
     .dashboard
-    
-    .page-container
-        .header-container
-            h2 Summary
-            p.view-all View All
-        .summary
-            .box
-                span.main-number 123
-                span.top-left-text Top Text
-                span.bottom-right-number 456
-            .box
-                span.main-number 789
-                span.top-left-text Another Text
-                span.bottom-right-number 101
-            .box
-                span.main-number 112
-                span.top-left-text More Text
-                span.bottom-right-number 131
-      
-        h2  New Unread Receipt 
-        .receipt
-                .box2
-                    .top-content
-                        img.image(src="/img/logo/logo-default-bat.png", alt="Image Alt Text")
-                        .text-content
-                            p Siti Aesha
-                            p aesha@company.com
-                            p C000047
-                    .bottom-content
-                        button(type="button") Process
-                        p 29/5/2024 15:46:33
-                .box2
-                    .top-content
-                        img.image(src="/img/logo/logo-default-bat.png", alt="Image Alt Text")
-                        .text-content
-                            p Siti Aesha
-                            p aesha@company.com
-                            p C000047
-                    .bottom-content
-                        button(type="button") Process
-                        p 29/5/2024 15:46:33
-                .box2
-                    .top-content
-                        img.image(src="/img/logo/logo-default-bat.png", alt="Image Alt Text")
-                        .text-content
-                            p Siti Aesha
-                            p aesha@company.com
-                            p C000047
-                    .bottom-content
-                        button(type="button") Process
-                        p 29/5/2024 15:46:33
+        .content-grid
+            .left-section
+                h2 What would you like to do today?
+                .action-buttons
+                     .button-wrapper.process-receipt
+                        a.button(href='/process_receipt')
+                            .button-icon
+                                img(src='img/logo/icon_processreceipt.png', alt='Process Receipt')
+                            .button-text Process Receipt
+                     .button-wrapper.user-maintenance
+                        a.button(href='/user_maintenance')
+                            .button-icon
+                                img(src='img/logo/icon_usermaintenance.png', alt='User Maintenance')
+                            .button-text User Maintenance
+                     .button-wrapper.account-maintenance
+                        a.button(href='/account_maintenance')
+                            .button-icon
+                                img(src='img/logo/icon_accountmaintenance.png', alt='Account Maintenance')
+                            .button-text Account Maintenance
 
-
-
-
-
-
-
-                
-
-    
+            .right-section
+                h2 Summary
+                .summary-section
+                    .summary-item
+                        .summary-number 
+                            span#totalReceiptsTaken 0
+                        .summary-info
+                            h4 Total Receipts Taken
+                            a(href='/process_receipt') More
+                    .summary-item
+                        .summary-number
+                            span#totalCashiers 0
+                        .summary-info
+                            h4 Total Cashiers
+                            a(href='/cashiers') More
+                    .summary-item
+                        .summary-number
+                            span#totalAccounts 0
+                        .summary-info
+                            h4 Total Accounts
+                            a(href='account_maintenance') More
+                    .summary-item
+                        .summary-number
+                            span#totalOutlets 0
+                        .summary-info
+                            h4 Total Outlets
+                            a(href='/outletss') More

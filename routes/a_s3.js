@@ -55,25 +55,23 @@ const upload = multer({
     limits: { fileSize: 10000000, files: 1},
 }); 
 
-router.post('/uploadReceipt', apiAuth.checkToken, upload.single('file'), async (req, res) => {
-    let {user_id} = req.token; 
-    // let data = req.body.data;
-    console.log(`api upload receipt run by ${user_id}`)
+router.post('/uploadReceipt/:outlet_id', apiAuth.checkToken, upload.single('file'), async (req, res) => {
+    let {user_id} = req.token;
+    let {outlet_id} = req.params;
     
     const file = req.file;
-    // let outlet_id = data.outlet_id;
 
     if (!file) return res.status(400).send({errMsg: "No file uploaded"});
-    // if (!outlet_id) return res.status(400).send({errMsg: 'No outlet ID is assigned to the user'});
+    if (!outlet_id) return res.status(400).send({errMsg: 'No outlet ID is assigned to the user'});
 
     try{ 
-        const { outlet_id } = await db.user_accounts.findOne({ 
-            attributes: ['outlet_id'], 
-            where: {user_id: user_id}, 
-            raw: true
-        });
+        // const { outlet_id } = await db.user_accounts.findOne({ 
+        //     attributes: ['outlet_id'], 
+        //     where: {user_id: user_id}, 
+        //     raw: true
+        // });
 
-        if (!outlet_id) return res.status(422).send({errMsg: 'No outlet ID is assigned to the user'}); 
+        // if (!outlet_id) return res.status(422).send({errMsg: 'No outlet ID is assigned to the user'}); 
 
         const imageName = `receipts/${user_id}/R_${uploadTime}_${outlet_id}-${file.originalname}`; 
 
@@ -163,5 +161,10 @@ router.get('/getReceiptImageUrl', apiAuth.checkToken, async (req, res) => {
 router.delete('/deleteFileAWS', apiAuth.checkToken, async (req, res) => { 
     biz.s3.deleteFile(req, res); 
 })
+
+router.get('/getReceiptImageUrl/:receiptImageId', jwtAuth.checkToken, async (req, res) => {
+    req.body.receiptImageId = req.params.receiptImageId;
+    biz.s3.getObjectSignedUrlAdmin(req, res);
+});
 
 module.exports = router; 
