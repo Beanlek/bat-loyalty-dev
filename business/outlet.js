@@ -104,4 +104,59 @@ Outlet.create = async function (req, res) {
     }
 };
 
+Outlet.activate = async function (req, res) {
+    let transaction;
+    let outlet_id = req.params.id;
+
+    // Ensure the current user is available and has a user_type
+    if (!req.user || !req.user.user_type) {
+        return res.status(403).send({ message: 'User type is missing or not authorized.' });
+    }
+
+    const updateActive = { active: true };
+    const updateDeactive = { active: false };
+
+    if (!outlet_id) return res.status(422).send({ errMsg: 'Missing Outlet ID!' });
+
+    let isOutletIDExist = await db.outlets.findOne({
+        where: {
+            id: outlet_id,
+        },
+    });
+
+    if (!isOutletIDExist) return res.status(422).send({ errMsg: 'Outlet ID is not valid' });
+
+    if (req.user.user_type === 'admin') {
+        try {
+            transaction = await sq.transaction();
+
+            let outlet = await db.outlets.findOne({
+                where: { id: outlet_id },
+            });
+
+            if (outlet.active === false) {
+                await db.outlets.update(updateActive, {
+                    where: { id: outlet_id },
+                    transaction,
+                });
+            } else {
+                await db.outlets.update(updateDeactive, {
+                    where: { id: outlet_id },
+                    transaction,
+                });
+            }
+            await transaction.commit();
+            return res.status(200).send({ message: 'Outlet status updated.' });
+        } catch (e) {
+            if (transaction && !transaction.finished) await transaction.rollback();
+            console.error(e);
+            return res.status(500).send({ errMsg: 'Internal Server Error' });
+        }
+    } else {
+        res.status(403).send({
+            message: 'Access Denied: This route is only accessible to ADMIN only',
+        });
+    }
+};
+
 module.exports = Outlet;

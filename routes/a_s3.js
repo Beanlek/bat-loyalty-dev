@@ -162,4 +162,9 @@ router.delete('/deleteFileAWS', apiAuth.checkToken, async (req, res) => {
     biz.s3.deleteFile(req, res); 
 })
 
+router.get('/getReceiptImageUrl/:receiptImageId', jwtAuth.checkToken, async (req, res) => {
+    req.body.receiptImageId = req.params.receiptImageId;
+    biz.s3.getObjectSignedUrlAdmin(req, res);
+});
+
 module.exports = router; 

@@ -1,6 +1,8 @@
 .form-container {
-    width: 800px; /* Adjust width based on the form size in the image */
-    margin-right: auto; /* Align the form to the right side */
+    display: flex;
+    flex-direction: column;
+    width: 800px;
+    margin-right: auto;
 }
 
 /* Title Styling (e.g., "Form") */
@@ -68,7 +70,7 @@ input.form-control::placeholder {
 .inline-group {
     display: flex;
     justify-content: space-between;
-    gap: 20px; /* Space between the fields */
+    gap: 20px;
 }
 
 /* Ensure both inputs have equal width */
@@ -80,8 +82,8 @@ input.form-control::placeholder {
 /* Button Group Styling */
 .button-group {
     display: flex;
+    justify-content: flex-end;
     margin-top: 30px;
-    margin-left: 600px;
 }
 
 /* Cancel Button Styling */
@@ -125,7 +127,7 @@ button.btn-primary:hover {
     }
 
     .inline-group {
-        flex-direction: column; /* Stack City and Postcode fields vertically on small screens */
+        flex-direction: column;
     }
 
     .button-group {

@@ -2,7 +2,7 @@ extends layout
 
 block styles
     link(rel='stylesheet', href='/css/table.css')
-    script(src="/js/cashier.js")
+    script(src="/js/cashiers.js")
 
 block header
     .title-bar
@@ -11,10 +11,6 @@ block header
             span.breadcrumbs 
                 a(href='/dashboard') Dashboard
                 |  > 
-                a(href='/account_maintenance') Account Maintenance
-                |  > 
-                a#outletBreadcrumb(href='#') Outlet
-                |  >
                 a#cashierBreadcrumb(href='#') Cashier
         .title-bar__profile
             span User ID: #{user_id}

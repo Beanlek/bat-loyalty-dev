@@ -518,4 +518,54 @@ User.activate = async function (req, res) {
   }
 };
 
+User.activateCashier = async function (req, res) {
+  let transaction;
+  let user_id = req.params.id;
+
+  // Ensure the current user is available and has a user_type
+  if (!req.user || !req.user.user_type) {
+      return res.status(403).send({ message: 'User type is missing or not authorized.' });
+  }
+
+  const updateActive = { active: true };
+  const updateDeactive = { active: false };
+
+  if (!user_id) return res.status(422).send({ errMsg: 'Missing User ID!' });
+
+  try {
+      // Check if the user ID exists and the user is a cashier
+      let isUserCashier = await db.users.findOne({
+          where: {
+              id: user_id,
+              user_type: 'cashier', // Only look for users with 'cashier' type
+          },
+      });
+
+      if (!isUserCashier) return res.status(422).send({ errMsg: 'User ID is not valid or not a cashier.' });
+
+      transaction = await sq.transaction();
+
+      // Toggle the user's active status
+      if (isUserCashier.active === false) {
+          await db.users.update(updateActive, {
+              where: { id: user_id },
+              transaction,
+          });
+      } else {
+          await db.users.update(updateDeactive, {
+              where: { id: user_id },
+              transaction,
+          });
+      }
+
+      await transaction.commit();
+      return res.status(200).send({ message: 'Cashier status updated successfully.' });
+
+  } catch (e) {
+      if (transaction && !transaction.finished) await transaction.rollback();
+      console.error(e);
+      return res.status(500).send({ errMsg: 'Internal Server Error' });
+  }
+};
+
 module.exports = User;

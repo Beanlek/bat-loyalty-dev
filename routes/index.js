@@ -46,10 +46,10 @@ router.get('/inventory_management', jwtAuth.checkToken, async (req, res, next)=>
   return res.render('inventory_management', {user_id, user_type});
 });
 
-router.get('/redemption_maintenance', jwtAuth.checkToken, async (req, res, next)=>{
+router.get('/redemption_management', jwtAuth.checkToken, async (req, res, next)=>{
   let {user_id, user_type} = req.token;
 
-  return res.render('redemtion_maintenance', {user_id, user_type});
+  return res.render('redemption_management', {user_id, user_type});
 });
 
 router.get('/program_management', jwtAuth.checkToken, async (req, res, next)=>{
@@ -64,12 +64,6 @@ router.get('/miscellaneous_report', jwtAuth.checkToken, async (req, res, next)=>
   return res.render('miscellaneous_report', {user_id, user_type});
 });
 
-router.get('/settings', jwtAuth.checkToken, async (req, res, next)=>{
-  let {user_id, user_type} = req.token;
-
-  return res.render('settings', {user_id, user_type});
-});
-
 router.get('/outlet', jwtAuth.checkToken, async (req, res, next)=>{
   let {user_id, user_type} = req.token;
 
@@ -81,10 +75,20 @@ router.get('/outlets', jwtAuth.checkToken, async (req, res, next)=>{
 
   return res.render('outlets', {user_id, user_type});
 });
+router.get('/outletss', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('outletss', {user_id, user_type});
+});
 router.get('/cashier', jwtAuth.checkToken, async (req, res, next)=>{
   let {user_id, user_type} = req.token;
 
   return res.render('cashier', {user_id, user_type});
+});
+router.get('/cashiers', jwtAuth.checkToken, async (req, res, next)=>{
+  let {user_id, user_type} = req.token;
+
+  return res.render('cashiers', {user_id, user_type});
 });
 router.get('/create_account', jwtAuth.checkToken, async (req, res, next)=>{
   let {user_id, user_type} = req.token;

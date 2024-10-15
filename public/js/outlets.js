@@ -67,7 +67,12 @@ $(async () => {
                     <td>${outlet.id || ''}</td>
                     <td>${outlet.name || ''}</td>
                     <td>${billingAddress}</td>
-                    <td>${outlet.active ? 'Active' : 'Inactive'}</td>
+                    <td>
+                        <label class="switch">
+                            <input type="checkbox" class="toggle-status" data-outlet-id="${outlet.id}" ${outlet.active ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    </td>
                     <td>${outlet.created_at || ''}</td>
                     <td>${outlet.created_by || ''}</td>
                     <td>${outletLink}</td>
@@ -76,7 +81,74 @@ $(async () => {
             $tbody.append(row);
         });
     }
+
+    async function updateOutletStatus(outletId, isActive) {
+        try {
+            const response = await $.ajax({
+                url: `/a/outlet/web/activate/${outletId}`,
+                method: 'PUT',
+                data: { active: isActive }, 
+                success: function(data) {
+                    console.log('Outlet status updated:', data);
+                    // Optionally show a success message or toast
+                },
+                error: function(xhr) {
+                    console.error('Error updating Outlet status:', xhr.responseText);
+                    // Revert the checkbox if the request fails
+                    $(`input[data-outlet-id="${outletId}"]`).prop('checked', !isActive);
+                    // Optionally show an error message to the user
+                }
+            });
+        } catch (error) {
+            console.error('Error occurred while updating outlet status:', error);
+            // Revert the checkbox if the update fails
+            $(`input[data-outlet-id="${outletId}"]`).prop('checked', !isActive);
+        }
+    }
     
+    function showConfirmationModal(message, onConfirm) {
+        $('#confirmationModal .modal-message').text(message);
+        $('#confirmationModal').fadeIn().css('display', 'flex');  // Show the modal with flexbox for centering
+
+        $('#confirmBtn').off('click').on('click', function () {
+            $('#confirmationModal').fadeOut();
+            onConfirm(true);  // Proceed with the confirmation
+        });
+
+        $('#cancelBtn').off('click').on('click', function () {
+            $('#confirmationModal').fadeOut();
+            onConfirm(false);  // Cancel the confirmation
+        });
+    }
+    $(document).on('change', '.toggle-status', function () {
+        const outletId = $(this).data('outlet-id');
+        const isActive = $(this).is(':checked'); // Capture current state of the checkbox
+
+        const confirmationMessage = isActive
+            ? 'Are you sure you want to activate this Outlet?'
+            : 'Are you sure you want to deactivate this Outlet?';
+
+        showConfirmationModal(confirmationMessage, function (confirmed) {
+            if (confirmed) {
+                updateOutletStatus(outletId, isActive);
+            } else {
+                // Revert checkbox state if the action is canceled
+                $(`input[data-outlet-id="${outletId}"]`).prop('checked', !isActive);
+            }
+        });
+    });
+
+    // Event listener for search input
+    $('.searchbar input.search').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        const filteredOutlets = userOutlets.filter(outlet => {
+            const idMatch = outlet.id.toLowerCase().includes(searchTerm);
+            const nameMatch = outlet.name.toLowerCase().includes(searchTerm);
+            const addressMatch = formatBillingAddress(outlet).toLowerCase().includes(searchTerm);
+            return idMatch || nameMatch || addressMatch;
+        });
+        updateOutletTable(filteredOutlets);
+    });
 
     function formatBillingAddress(outlet) {
         let addressParts = [

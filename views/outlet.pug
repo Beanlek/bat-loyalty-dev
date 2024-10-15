@@ -53,3 +53,11 @@ block content
                 th Created By
         tbody
     .loading-indicator Loading...
+
+    // Custom confirmation modal
+    div#confirmationModal.modal
+        div.modal-content
+            p.modal-message Are you sure you want to deactivate this outlet account?
+            div.modal-actions
+                button#confirmBtn(type='button') Confirm
+                button#cancelBtn(type='button') Cancel

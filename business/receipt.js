@@ -34,3 +34,18 @@ Receipt.read = async function (req, res) {
     } 
     console.log('The file uploaded is', receiptUpload); 
 }
+
+Receipt.list = async function (req,res){
+    
+    try {
+        const receipt = await db.receipt_images.findAll();
+
+        res.status(200).send(receipt);
+
+    } catch (error){
+        console.error("Error fetching receipt:",error);
+        res.status(500).json({error:"An error occurred while fetching account." });
+    }
+}
+
+module.exports = Receipt;

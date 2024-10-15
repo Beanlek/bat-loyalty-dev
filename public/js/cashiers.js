@@ -1,71 +1,53 @@
 $(async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const outletId = urlParams.get('OutletId');
-    const accountId = urlParams.get('accountId');
-    const accountName = decodeURIComponent(urlParams.get('accountName'));
 
-    $('#cashierBreadcrumb').attr('href', `/cashier?OutletId=${outletId}&accountId=${accountId}&accountName=${encodeURIComponent(accountName)}`);
-    $('#outletBreadcrumb').attr('href', `/outlets?accountId=${accountId}&accountName=${encodeURIComponent(accountName)}`);
-    
     let allUsers = [];
-    let allUserAccounts = [];
     let cashiers = [];
-    let currentPage = 1;
-    const usersPerPage = 10; // Limit 10 users per page
     let filteredCashiers = [];
+    let currentPage = 1;
+    const usersPerPage = 10; // Set users per page
+    let totalPages = 1;
 
+    // Fetch users from the server
     async function fetchUsers() {
         try {
             const response = await $.get("/a/user/web/list");
             allUsers = response.user_listing.rows;
             console.log('Fetched users:', allUsers);
+
+            // Filter users where user_type is 'cashier'
+            cashiers = allUsers.filter(user => user.user_type === 'cashier');
+            console.log('Filtered cashiers:', cashiers);
+
+            // Set filtered cashiers initially to all cashiers
+            filteredCashiers = cashiers;
+
+            // Calculate total pages
+            totalPages = Math.ceil(filteredCashiers.length / usersPerPage);
+            $('.total-pages').text(totalPages);
+
+            // Display the first page of users
+            updateOutletTable();
         } catch (error) {
             console.error('Error fetching users:', error);
         }
     }
 
-    async function fetchUserAccounts() {
-        try {
-            const response = await $.get("/a/user_account/web/list");
-            if (Array.isArray(response)) {
-                allUserAccounts = response;
-                console.log('Fetched user accounts:', allUserAccounts);
-                showUserOutlets(); // Process user accounts after fetching
-            }
-        } catch (error) {
-            console.error('Error fetching user accounts:', error);
-        }
-    }
-
-    function showUserOutlets() {
-        cashiers = [];
-        const matchingUserAccounts = allUserAccounts.filter(userAccount => userAccount.outlet_id === outletId);
-
-        matchingUserAccounts.forEach(userAccount => {
-            const matchedUser = allUsers.find(user => user.id === userAccount.user_id);
-            if (matchedUser) {
-                cashiers.push(matchedUser);
-            }
-        });
-        console.log('Filtered users:', cashiers);
-        filteredCashiers = [...cashiers]; // Initialize with full list for search
-        updateOutletTable();
-    }
-
+    // Update the table with the current page of filtered cashiers
     function updateOutletTable() {
         const $tbody = $('.data-list tbody');
         $tbody.empty();
-        
-        // Calculate the starting and ending indices for pagination
-        const start = (currentPage - 1) * usersPerPage;
-        const end = start + usersPerPage;
-        const paginatedUsers = filteredCashiers.slice(start, end); // Get users for current page
 
-        paginatedUsers.forEach((user, index) => {
+        // Determine the start and end indices for the current page
+        const startIndex = (currentPage - 1) * usersPerPage;
+        const endIndex = Math.min(startIndex + usersPerPage, filteredCashiers.length);
+
+        // Display the users for the current page
+        filteredCashiers.slice(startIndex, endIndex).forEach((user, index) => {
             let billingAddress = formatBillingAddress(user);
+
             let row = `
                 <tr class="data">
-                    <td>${start + index + 1}</td>
+                    <td>${startIndex + index + 1}</td>
                     <td>${user.id || ''}</td>
                     <td>${user.email || ''}</td>
                     <td>${user.name || ''}</td>
@@ -80,13 +62,12 @@ $(async () => {
                     <td>${user.created_at || ''}</td>
                     <td>${user.created_by || ''}</td>
                 </tr>`;
+
             $tbody.append(row);
         });
 
-        // Update pagination display
+        // Update the current page in the paginator
         $('.current-page').val(currentPage);
-        const totalPages = Math.ceil(filteredCashiers.length / usersPerPage);
-        $('.total-pages').text(`of ${totalPages}`);
     }
 
     async function updateCashierStatus(userId, isActive) {
@@ -97,31 +78,36 @@ $(async () => {
                 data: { active: isActive }, 
                 success: function(data) {
                     console.log('User status updated:', data);
+                    // Optionally show a success message or toast
                 },
                 error: function(xhr) {
                     console.error('Error updating user status:', xhr.responseText);
-                    $(`input[data-user-id="${userId}"]`).prop('checked', !isActive); // Revert checkbox
+                    // Revert the checkbox if the request fails
+                    $(`input[data-user-id="${userId}"]`).prop('checked', !isActive);
+                    // Optionally show an error message to the user
                 }
             });
         } catch (error) {
             console.error('Error occurred while updating user status:', error);
+            // Revert the checkbox if the update fails
             $(`input[data-user-id="${userId}"]`).prop('checked', !isActive);
         }
     }
 
     function showConfirmationModal(message, onConfirm) {
         $('#confirmationModal .modal-message').text(message);
-        $('#confirmationModal').fadeIn().css('display', 'flex');
+        $('#confirmationModal').fadeIn().css('display', 'flex');  // Show the modal with flexbox for centering
+
         $('#confirmBtn').off('click').on('click', function () {
             $('#confirmationModal').fadeOut();
             onConfirm(true);
         });
+
         $('#cancelBtn').off('click').on('click', function () {
             $('#confirmationModal').fadeOut();
             onConfirm(false);
         });
     }
-
     $(document).on('change', '.toggle-status', function () {
         const userId = $(this).data('user-id');
         const isActive = $(this).is(':checked');
@@ -149,23 +135,11 @@ $(async () => {
             user.city,
             user.state
         ];
+
         return addressParts.filter(part => part).join(', ');
     }
 
-    // Search functionality
-    $('.searchbar input.search').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase();
-        filteredCashiers = cashiers.filter(user => {
-            const idMatch = user.id.toLowerCase().includes(searchTerm);
-            const nameMatch = user.name.toLowerCase().includes(searchTerm);
-            const addressMatch = formatBillingAddress(user).toLowerCase().includes(searchTerm);
-            return idMatch || nameMatch || addressMatch;
-        });
-        currentPage = 1; // Reset to first page on new search
-        updateOutletTable();
-    });
-
-    // Pagination controls
+    // Handle pagination controls
     $('.prev').click(() => {
         if (currentPage > 1) {
             currentPage--;
@@ -174,13 +148,43 @@ $(async () => {
     });
 
     $('.next').click(() => {
-        const totalPages = Math.ceil(filteredCashiers.length / usersPerPage);
         if (currentPage < totalPages) {
             currentPage++;
             updateOutletTable();
         }
     });
 
+    // Handle manual page input
+    $('.current-page').on('change', function () {
+        const inputPage = parseInt($(this).val(), 10);
+        if (inputPage >= 1 && inputPage <= totalPages) {
+            currentPage = inputPage;
+            updateOutletTable();
+        } else {
+            $(this).val(currentPage); // Reset to current page if invalid
+        }
+    });
+
+    // Search functionality: filter users by ID, Email, or Name
+    $('.search').on('input', function () {
+        const query = $(this).val().toLowerCase();
+
+        // Filter based on ID, Email, or Name
+        filteredCashiers = cashiers.filter(user => {
+            return (
+                user.id.toLowerCase().includes(query) ||
+                user.email.toLowerCase().includes(query) ||
+                user.name.toLowerCase().includes(query)
+            );
+        });
+
+        // Reset to page 1 and update the table
+        currentPage = 1;
+        totalPages = Math.ceil(filteredCashiers.length / usersPerPage);
+        $('.total-pages').text(totalPages);
+        updateOutletTable();
+    });
+
+    // Fetch users and update the table on page load
     await fetchUsers();
-    await fetchUserAccounts();
 });
