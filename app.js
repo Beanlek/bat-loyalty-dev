@@ -20,6 +20,7 @@ const apiProductRouter = require('./routes/api_product');
 const apiAccountRouter = require('./routes/api_account'); 
 const apiUserAccountRouter = require('./routes/api_user_account'); 
 const apiOutletRouter = require('./routes/api_outlet');
+const receiptImageRouter = require('./routes/api_receipt');
 
 //Web
 const indexRouter = require('./routes/index');
@@ -48,6 +49,8 @@ app.use('/api/product', apiProductRouter);
 app.use('/api/account', apiAccountRouter); 
 app.use('/api/user_account', apiUserAccountRouter); 
 app.use('/api/outlet', apiOutletRouter);
+app.use('/api/receipt',receiptImageRouter);
+
 
 // pug engine (required)
 app.set('views', path.join(__dirname, 'views'));
@@ -73,6 +76,7 @@ app.use('/a/receipt',receiptRouter);
 app.use('/a/s3', s3Router); 
 app.use('/a/user_account',userAccountRouter);
 app.use('/a/user', userRouter);
+
 
 
 // 404 error handler

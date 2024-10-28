@@ -48,6 +48,10 @@ module.exports = (sequelize, Sequelize) => {
           updated_at: {
             type: Sequelize.DATE,
             allowNull: true
+        },
+        has_opened: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false
         } 
     },{
         timestamps: true,
